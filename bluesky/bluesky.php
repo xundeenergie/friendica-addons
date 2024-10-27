@@ -139,7 +139,7 @@ function bluesky_probe_detect(array &$hookData)
 			return;
 		}
 	} elseif (Network::isValidHttpUrl($hookData['uri'])) {
-		$did = bluesky_get_did_by_profile($hookData['uri']);
+		$did = bluesky_get_did_by_profile($hookData['uri'], $pconfig['uid']);
 		if (empty($did)) {
 			return;
 		}
@@ -181,21 +181,21 @@ function bluesky_item_by_link(array &$hookData)
 		return;
 	}
 
-	$did = bluesky_get_did_by_profile($hookData['uri']);
+	if (!preg_match('#/profile/(.+)/post/(.+)#', $hookData['uri'], $matches)) {
+		return;
+	}
+
+	$did = bluesky_get_did($matches[1], $hookData['uid']);
 	if (empty($did)) {
 		return;
 	}
 
-	if (!preg_match('#/profile/.+/post/(.+)#', $hookData['uri'], $matches)) {
-		return;
-	}
+	Logger::debug('Found bluesky post', ['url' => $hookData['uri'], 'did' => $did, 'cid' => $matches[2]]);
 
-	Logger::debug('Found bluesky post', ['url' => $hookData['uri'], 'did' => $did, 'cid' => $matches[1]]);
-
-	$uri = 'at://' . $did . '/app.bsky.feed.post/' . $matches[1];
+	$uri = 'at://' . $did . '/app.bsky.feed.post/' . $matches[2];
 
 	$uri = bluesky_fetch_missing_post($uri, $hookData['uid'], $hookData['uid'], Item::PR_FETCHED, 0, 0, 0);
-	Logger::debug('Got post', ['did' => $did, 'cid' => $matches[1], 'result' => $uri]);
+	Logger::debug('Got post', ['did' => $did, 'cid' => $matches[2], 'result' => $uri]);
 	if (!empty($uri)) {
 		$item = Post::selectFirst(['id'], ['uri' => $uri, 'uid' => $hookData['uid']]);
 		if (!empty($item['id'])) {
@@ -1831,8 +1831,14 @@ function bluesky_get_preferences(int $uid): ?stdClass
 	return $data;
 }
 
-function bluesky_get_did_by_profile(string $url): string
+function bluesky_get_did_by_profile(string $url, int $uid): string
 {
+	if (preg_match('#/profile/(.+)#', $url, $matches)) {
+		$did = bluesky_get_did($matches[1], $uid);
+		if (!empty($did)) {
+			return $did;
+		}
+	}
 	try {
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::REQUEST => HttpClientRequest::CONTACTINFO]);
 	} catch (\Throwable $th) {
@@ -1938,13 +1944,6 @@ function bluesky_get_did(string $handle, int $uid): string
 	$did = bluesky_get_did_by_wellknown($handle);
 	if ($did != '') {
 		Logger::debug('Got DID by wellknown', ['handle' => $handle, 'did' => $did]);
-		return $did;
-	}
-
-	// The profile page can contain hints to the DID as well
-	$did = bluesky_get_did_by_profile('https://' . $handle);
-	if ($did != '') {
-		Logger::debug('Got DID by profile page', ['handle' => $handle, 'did' => $did]);
 		return $did;
 	}
 
