@@ -181,7 +181,7 @@ function bluesky_item_by_link(array &$hookData)
 		return;
 	}
 
-	if (!preg_match('#/profile/(.+)/post/(.+)#', $hookData['uri'], $matches)) {
+	if (!preg_match('#^' . BLUESKY_WEB . '/profile/(.+)/post/(.+)#', $hookData['uri'], $matches)) {
 		return;
 	}
 
@@ -1833,7 +1833,7 @@ function bluesky_get_preferences(int $uid): ?stdClass
 
 function bluesky_get_did_by_profile(string $url, int $uid): string
 {
-	if (preg_match('#/profile/(.+)#', $url, $matches)) {
+	if (preg_match('#^' . BLUESKY_WEB . '/profile/(.+)#', $url, $matches)) {
 		$did = bluesky_get_did($matches[1], $uid);
 		if (!empty($did)) {
 			return $did;
