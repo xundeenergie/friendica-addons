@@ -22,6 +22,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -31,7 +32,6 @@ use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -850,6 +850,7 @@ function tumblr_get_header(stdClass $post, string $uri, int $uid): array
 	$contact = tumblr_get_contact($post->blog, $uid);
 	$item = [
 		'network'       => Protocol::TUMBLR,
+		'protocol'      => Conversation::PARCEL_CONNECTOR,
 		'uid'           => $uid,
 		'wall'          => false,
 		'uri'           => $uri,

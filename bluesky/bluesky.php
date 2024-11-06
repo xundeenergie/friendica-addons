@@ -38,6 +38,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
@@ -1058,6 +1059,7 @@ function bluesky_process_reason(stdClass $reason, string $uri, int $uid)
 
 	$item = [
 		'network'       => Protocol::BLUESKY,
+		'protocol'      => Conversation::PARCEL_CONNECTOR,
 		'uid'           => $uid,
 		'wall'          => false,
 		'uri'           => $reason->by->did . '/app.bsky.feed.repost/' . $reason->indexedAt,
@@ -1257,6 +1259,7 @@ function bluesky_get_header(stdClass $post, string $uri, int $uid, int $fetch_ui
 	$contact = bluesky_get_contact($post->author, $uid, $fetch_uid);
 	$item = [
 		'network'       => Protocol::BLUESKY,
+		'protocol'      => Conversation::PARCEL_CONNECTOR,
 		'uid'           => $uid,
 		'wall'          => false,
 		'uri'           => $uri,
@@ -1459,8 +1462,8 @@ function bluesky_add_media(stdClass $embed, array $item, int $fetch_uid, int $le
 				'url'         => $embed->playlist,
 				'preview'     => $embed->thumbnail,
 				'description' => $embed->alt ?? '',
-				'height'      => $embed->aspectRatio->height,
-				'width'       => $embed->aspectRatio->width,
+				'height'      => $embed->aspectRatio->height ?? null,
+				'width'       => $embed->aspectRatio->width ?? null,
 			];
 			Post\Media::insert($media);
 			break;
