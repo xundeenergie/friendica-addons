@@ -587,13 +587,13 @@ function bluesky_hook_fork(array &$b)
 
 	if (DI::pConfig()->get($post['uid'], 'bluesky', 'import')) {
 		// Don't post if it isn't a reply to a bluesky post
-		if (($post['parent'] != $post['id']) && !Post::exists(['id' => $post['parent'], 'network' => Protocol::BLUESKY])) {
+		if (($post['gravity'] != Item::GRAVITY_PARENT) && !Post::exists(['id' => $post['parent'], 'network' => Protocol::BLUESKY])) {
 			Logger::notice('No bluesky parent found', ['item' => $post['id']]);
 			$b['execute'] = false;
 			return;
 		}
-	} elseif (!strstr($post['postopts'] ?? '', 'bluesky') || ($post['parent'] != $post['id']) || $post['private']) {
-		DI::logger()->info('Activities are never exported when we don\'t import the bluesky timeline', ['uid' => $post['uid']]);
+	} elseif (!strstr($post['postopts'] ?? '', 'bluesky') || ($post['gravity'] != Item::GRAVITY_PARENT) || ($post['private'] == Item::PRIVATE)) {
+		DI::logger()->info('Post will not be exported', ['uid' => $post['uid'], 'postopts' => $post['postopts'], 'gravity' => $post['gravity'], 'private' => $post['private']]);
 		$b['execute'] = false;
 		return;
 	}
@@ -601,15 +601,11 @@ function bluesky_hook_fork(array &$b)
 
 function bluesky_post_local(array &$b)
 {
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
@@ -667,7 +663,7 @@ function bluesky_send(array &$b)
 			bluesky_create_activity($b, $parent);
 		}
 		return;
-	} elseif ($b['private'] || !strstr($b['postopts'], 'bluesky')) {
+	} elseif (($b['private'] == Item::PRIVATE) || !strstr($b['postopts'], 'bluesky')) {
 		return;
 	}
 
@@ -1481,6 +1477,18 @@ function bluesky_add_media(stdClass $embed, array $item, int $fetch_uid, int $le
 
 		case 'app.bsky.embed.record#view':
 			$original_uri = $uri = bluesky_get_uri($embed->record);
+			$type = '$type';
+			if (!empty($embed->record->record->$type)) {
+				$embed_type = $embed->record->record->$type;
+				if ($embed_type == 'app.bsky.graph.starterpack') {
+					Logger::debug('Starterpacks are not fetched like posts', ['original-uri' => $original_uri]);
+					if (empty($item['body'])) {
+						// @todo process starterpack
+						$item['body'] = '[url=' . $embed->record->record->list . ']' . $embed->record->record->name . '[/url]';
+					}
+					break;
+				}
+			}
 			$uri = bluesky_fetch_missing_post($uri, $item['uid'], $fetch_uid, Item::PR_FETCHED, $item['contact-id'], $level, $last_poll);
 			if ($uri) {
 				$shared = Post::selectFirst(['uri-id'], ['uri' => $uri, 'uid' => [$item['uid'], 0]]);
@@ -1603,13 +1611,13 @@ function bluesky_fetch_missing_post(string $uri, int $uid, int $fetch_uid, int $
 
 	if (!empty($data->thread->parent)) {
 		$parents = bluesky_fetch_parents($data->thread->parent, $uid);
-		
+
 		foreach ($parents as $parent) {
 			$uri_id = bluesky_process_post($parent, $uid, $fetch_uid, Item::PR_FETCHED, $causer, $level, $last_poll);
 			Logger::debug('Parent created', ['uri-id' => $uri_id]);
 		}
 	}
-	
+
 	return bluesky_process_thread($data->thread, $uid, $fetch_uid, $post_reason, $causer, $level, $last_poll);
 }
 
@@ -1618,7 +1626,7 @@ function bluesky_fetch_parents(stdClass $parent, int $uid, array $parents = []):
 	if (!empty($parent->parent)) {
 		$parents = bluesky_fetch_parents($parent->parent, $uid, $parents);
 	}
-	
+
 	if (!empty($parent->post) && empty(bluesky_fetch_post(bluesky_get_uri($parent->post), $uid))) {
 		$parents[] = $parent->post;
 	}

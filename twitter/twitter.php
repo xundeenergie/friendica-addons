@@ -170,7 +170,7 @@ function twitter_hook_fork(array &$b)
 	$post = $b['data'];
 
 	if (
-		$post['deleted'] || $post['private'] || ($post['created'] !== $post['edited']) ||
+		$post['deleted'] || ($post['private'] == Item::PRIVATE) || ($post['created'] !== $post['edited']) ||
 		!strstr($post['postopts'], 'twitter') || ($post['gravity'] != Item::GRAVITY_PARENT)
 	) {
 		$b['execute'] = false;
@@ -184,7 +184,7 @@ function twitter_post_local(array &$b)
 		return;
 	}
 
-	if ($b['edit'] || $b['private'] || $b['parent']) {
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
@@ -211,7 +211,7 @@ function twitter_post_hook(array &$b)
 {
 	DI::logger()->debug('Invoke post hook', $b);
 
-	if (($b['gravity'] != Item::GRAVITY_PARENT) || !strstr($b['postopts'], 'twitter') || $b['private'] || $b['deleted'] || ($b['created'] !== $b['edited'])) {
+	if (($b['gravity'] != Item::GRAVITY_PARENT) || !strstr($b['postopts'], 'twitter') || ($b['private'] == Item::PRIVATE) || $b['deleted'] || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
