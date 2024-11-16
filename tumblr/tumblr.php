@@ -477,13 +477,13 @@ function tumblr_hook_fork(array &$b)
 
 	if (DI::pConfig()->get($post['uid'], 'tumblr', 'import')) {
 		// Don't post if it isn't a reply to a tumblr post
-		if (($post['parent'] != $post['id']) && !Post::exists(['id' => $post['parent'], 'network' => Protocol::TUMBLR])) {
+		if (($post['gravity'] != Item::GRAVITY_PARENT) && !Post::exists(['id' => $post['parent'], 'network' => Protocol::TUMBLR])) {
 			Logger::notice('No tumblr parent found', ['item' => $post['id']]);
 			$b['execute'] = false;
 			return;
 		}
-	} elseif (!strstr($post['postopts'] ?? '', 'tumblr') || ($post['parent'] != $post['id']) || $post['private']) {
-		DI::logger()->info('Activities are never exported when we don\'t import the tumblr timeline', ['uid' => $post['uid']]);
+	} elseif (!strstr($post['postopts'] ?? '', 'tumblr') || ($post['gravity'] != Item::GRAVITY_PARENT) || ($post['private'] == Item::PRIVATE)) {
+		DI::logger()->info('Post will not be exported', ['uid' => $post['uid'], 'postopts' => $post['postopts'], 'gravity' => $post['gravity'], 'private' => $post['private']]);
 		$b['execute'] = false;
 		return;
 	}
@@ -491,15 +491,11 @@ function tumblr_hook_fork(array &$b)
 
 function tumblr_post_local(array &$b)
 {
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
@@ -575,7 +571,7 @@ function tumblr_send(array &$b)
 			}
 		}
 		return;
-	} elseif ($b['private'] || !strstr($b['postopts'], 'tumblr')) {
+	} elseif (($b['private'] == Item::PRIVATE) || !strstr($b['postopts'], 'tumblr')) {
 		return;
 	}
 

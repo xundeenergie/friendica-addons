@@ -296,7 +296,7 @@ function statusnet_hook_fork(array &$b)
 
 	$post = $b['data'];
 
-	if ($post['deleted'] || ($post['created'] !== $post['edited']) || strpos($post['postopts'] ?? '', 'statusnet') === false || ($post['parent'] != $post['id']) || $post['private']) {
+	if ($post['deleted'] || ($post['created'] !== $post['edited']) || strpos($post['postopts'] ?? '', 'statusnet') === false || ($post['gravity'] != Item::GRAVITY_PARENT) || ($post['private'] == Item::PRIVATE)) {
 		$b['execute'] = false;
 		return;
 	}
@@ -336,7 +336,7 @@ function statusnet_post_hook(array &$b)
 	/**
 	 * Post to GNU Social
 	 */
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
@@ -439,11 +439,13 @@ function statusnet_addon_admin_post()
 		$secret = trim($_POST['secret'][$id]);
 		$key = trim($_POST['key'][$id]);
 		//$applicationname = (!empty($_POST['applicationname']) ? Strings::escapeTags(trim($_POST['applicationname'][$id])):'');
-		if ($sitename != '' &&
+		if (
+			$sitename != '' &&
 			$apiurl != '' &&
 			$secret != '' &&
 			$key != '' &&
-			empty($_POST['delete'][$id])) {
+			empty($_POST['delete'][$id])
+		) {
 
 			$sites[] = [
 				'sitename' => $sitename,
