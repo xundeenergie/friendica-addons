@@ -412,7 +412,7 @@ function pumpio_send(array &$b)
 
 		Logger::notice('pumpio_send: receiver ', $receiver);
 
-		if (!count($receiver) && ($b['private'] == Item::PRIVATE) || !strstr($b['postopts'], 'pumpio'))) {
+		if (!count($receiver) && ($b['private'] == Item::PRIVATE) || !strstr($b['postopts'], 'pumpio')) {
 			return;
 		}
 
@@ -1319,7 +1319,7 @@ function pumpio_getreceiver(array $b)
 {
 	$receiver = [];
 
-	if ($b['private'] != Item::PRIVATE)) {
+	if ($b['private'] != Item::PRIVATE) {
 		if (!strstr($b['postopts'], 'pumpio')) {
 			return $receiver;
 		}
