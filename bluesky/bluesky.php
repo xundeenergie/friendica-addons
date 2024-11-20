@@ -1481,11 +1481,7 @@ function bluesky_add_media(stdClass $embed, array $item, int $fetch_uid, int $le
 			if (!empty($embed->record->record->$type)) {
 				$embed_type = $embed->record->record->$type;
 				if ($embed_type == 'app.bsky.graph.starterpack') {
-					Logger::debug('Starterpacks are not fetched like posts', ['original-uri' => $original_uri]);
-					if (empty($item['body'])) {
-						// @todo process starterpack
-						$item['body'] = '[url=' . $embed->record->record->list . ']' . $embed->record->record->name . '[/url]';
-					}
+					bluesky_add_starterpack($item, $embed->record);
 					break;
 				}
 			}
@@ -1521,6 +1517,30 @@ function bluesky_add_media(stdClass $embed, array $item, int $fetch_uid, int $le
 			break;
 	}
 	return $item;
+}
+
+function bluesky_add_starterpack(array $item, stdClass $record)
+{
+	Logger::debug('Received starterpack', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'uri' => $record->uri]);
+	if (!preg_match('#^at://(.+)/app.bsky.graph.starterpack/(.+)#', $record->uri, $matches)) {
+		return;
+	}
+
+	$media = [
+		'uri-id'      => $item['uri-id'],
+		'type'        => Post\Media::HTML,
+		'url'         => 'https://bsky.app/starter-pack/' . $matches[1] . '/' . $matches[2],
+		'name'        => $record->record->name,
+		'description' => $record->record->description,
+	];
+
+	Post\Media::insert($media);
+
+	$fields = [
+		'name'        => $record->record->name,
+		'description' => $record->record->description,
+	];
+	Post\Media::update($fields, ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 }
 
 function bluesky_get_uri(stdClass $post): string
