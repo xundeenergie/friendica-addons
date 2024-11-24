@@ -70,6 +70,7 @@ class tictac {
   private $dimen;
   private $first_move = true;
   private $handicap = 0;
+  private $mefirst;
   private $yours;
   private $mine;
   private $winning_play;
@@ -161,10 +162,10 @@ class tictac {
 
   ];
 
-  function __construct($dimen,$handicap,$mefirst,$yours,$mine) {
+  function __construct($dimen, $handicap, $mefirst, $yours, $mine) {
     $this->dimen = 3;
-    $this->handicap = (($handicap) ? 1 : 0);
-    $this->mefirst = (($mefirst) ? 1 : 0);
+    $this->handicap = $handicap ? 1 : 0;
+    $this->mefirst = $mefirst ? 1 : 0;
     $this->yours = str_replace('XXX','',$yours);
     $this->mine  = $mine;
     $this->you = $this->parse_moves('you');
@@ -175,6 +176,7 @@ class tictac {
   }
 
   function play() {
+     $o = '';
 
      if($this->first_move) {
        if(rand(0,1) == 1) {
