@@ -631,7 +631,7 @@ function winning_move() {
   function draw_board() {
     if(! strlen($this->yours))
       $this->yours = 'XXX';
-    $o .=  "<form action=\"tictac/{$this->handicap}/{$this->mefirst}/{$this->dimen}/{$this->yours}/{$this->mine}\" method=\"post\" />";
+    $o =  "<form action=\"tictac/{$this->handicap}/{$this->mefirst}/{$this->dimen}/{$this->yours}/{$this->mine}\" method=\"post\" />";
     for($x = 0; $x < $this->dimen; $x ++) {
       $o .=  '<table>';
       for($y = 0; $y < $this->dimen; $y ++) {
