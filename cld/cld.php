@@ -22,6 +22,16 @@ function cld_detect_languages(array &$data)
 		return;
 	}
 
+	if (!class_exists('CLD2Detector')) {
+		Logger::warning('CLD2Detector class does not exist.');
+		return;
+	}
+
+	if (!class_exists('CLD2Encoding')) {
+		Logger::warning('CLD2Encoding class does not exist.');
+		return;
+	}
+
 	$cld2 = new \CLD2Detector();
 
 	$cld2->setEncodingHint(CLD2Encoding::UTF8); // optional, hints about text encoding
