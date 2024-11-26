@@ -461,7 +461,7 @@ function blockbot_is_social_media(array $parts): bool
 
 	$agents = [
 		'facebookexternalhit', 'twitterbot', 'mastodon', 'facebookexternalua',
-		'friendica', 'diasporafederation', 'buzzrelay', 'activityrelay',
+		'friendica', 'diasporafederation', 'buzzrelay', 'activityrelay', 'drupal',
 		'aoderelay', 'ap-relay', 'peertube', 'misskey', 'pleroma', 'foundkey', 'akkoma',
 		'lemmy', 'calckey', 'mobilizon', 'zot', 'camo-rs', 'gotosocial', 'pixelfed',
 		'pixelfedbot', 'app.wafrn.net', 'go-camo', 'http://a.gup.pe', 'iceshrimp',

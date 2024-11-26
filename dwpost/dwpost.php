@@ -14,6 +14,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -88,24 +89,20 @@ function dwpost_settings_post(array &$b)
 
 function dwpost_post_local(array &$b)
 {
-	// This can probably be changed to allow editing by pointing to a different API endpoint
-	if ($b['edit']) {
-		return;
-	}
-
 	if ((!DI::userSession()->getLocalUserId()) || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	// This can probably be changed to allow editing by pointing to a different API endpoint
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
-	$dw_post = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'dwpost','post'));
+	$dw_post = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'dwpost', 'post'));
 
 	$dw_enable = (($dw_post && !empty($_REQUEST['dwpost_enable'])) ? intval($_REQUEST['dwpost_enable']) : 0);
 
-	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'dwpost','post_by_default'))) {
+	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'dwpost', 'post_by_default'))) {
 		$dw_enable = 1;
 	}
 
@@ -122,7 +119,7 @@ function dwpost_post_local(array &$b)
 
 function dwpost_send(array &$b)
 {
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
@@ -145,8 +142,8 @@ function dwpost_send(array &$b)
 	$user = User::getById($b['uid']);
 	$tz = $user['timezone'] ?: 'UTC';
 
-	$dw_username = DI::pConfig()->get($b['uid'],'dwpost','dw_username');
-	$dw_password = DI::pConfig()->get($b['uid'],'dwpost','dw_password');
+	$dw_username = DI::pConfig()->get($b['uid'], 'dwpost', 'dw_username');
+	$dw_password = DI::pConfig()->get($b['uid'], 'dwpost', 'dw_password');
 	$dw_blog = 'http://www.dreamwidth.org/interface/xmlrpc';
 
 	if ($dw_username && $dw_password && $dw_blog) {
@@ -156,11 +153,11 @@ function dwpost_send(array &$b)
 		$tags = Tag::getCSVByURIId($b['uri-id'], [Tag::HASHTAG]);
 
 		$date = DateTimeFormat::convert($b['created'], $tz);
-		$year = intval(substr($date,0,4));
-		$mon  = intval(substr($date,5,2));
-		$day  = intval(substr($date,8,2));
-		$hour = intval(substr($date,11,2));
-		$min  = intval(substr($date,14,2));
+		$year = intval(substr($date, 0, 4));
+		$mon  = intval(substr($date, 5, 2));
+		$day  = intval(substr($date, 8, 2));
+		$hour = intval(substr($date, 11, 2));
+		$min  = intval(substr($date, 14, 2));
 
 		$xml = <<< EOT
 <?xml version="1.0" encoding="utf-8"?>
