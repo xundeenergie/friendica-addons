@@ -1036,7 +1036,7 @@ function bluesky_complete_post(stdClass $post, int $uid, int $post_reason, int $
 	}
 
 	if ($complete) {
-		$uri = bluesky_fetch_missing_post($post->uri, $uid, $uid, $post_reason, $causer, 0, $last_poll, '', true);
+		$uri = bluesky_fetch_missing_post(bluesky_get_uri($post), $uid, $uid, $post_reason, $causer, 0, $last_poll, '', true);
 		$uri_id = bluesky_fetch_uri_id($uri, $uid);
 	} else {
 		$uri_id = bluesky_process_post($post, $uid, $uid, $post_reason, $causer, 0, $last_poll);
@@ -1060,7 +1060,6 @@ function bluesky_process_reason(stdClass $reason, string $uri, int $uid)
 		'wall'          => false,
 		'uri'           => $reason->by->did . '/app.bsky.feed.repost/' . $reason->indexedAt,
 		'private'       => Item::UNLISTED,
-		'verb'          => Activity::POST,
 		'contact-id'    => $contact['id'],
 		'author-name'   => $contact['name'],
 		'author-link'   => $contact['url'],
@@ -1485,7 +1484,12 @@ function bluesky_add_media(stdClass $embed, array $item, int $fetch_uid, int $le
 					break;
 				}
 			}
-			$uri = bluesky_fetch_missing_post($uri, $item['uid'], $fetch_uid, Item::PR_FETCHED, $item['contact-id'], $level, $last_poll);
+			$fetched_uri = bluesky_fetch_post($uri, $item['uid']);
+			if (!$fetched_uri) {
+				$uri = bluesky_fetch_missing_post($uri, 0, $fetch_uid, Item::PR_FETCHED, $item['contact-id'], $level, $last_poll);
+			} else {
+				$uri = $fetched_uri;
+			}
 			if ($uri) {
 				$shared = Post::selectFirst(['uri-id'], ['uri' => $uri, 'uid' => [$item['uid'], 0]]);
 				$uri_id = $shared['uri-id'] ?? 0;
