@@ -762,13 +762,13 @@ class CodebirdSN
      * @param string $method  The API method to call
      * @param array  $params  The parameters to send along
      *
-     * @return void
+     * @return string
      */
     protected function _buildMultipart($method, $params)
     {
         // well, files will only work in multipart methods
         if (! $this->_detectMultipart($method)) {
-            return;
+            return '';
         }
 
         // only check specific parameters
@@ -783,7 +783,7 @@ class CodebirdSN
         );
         // method might have files?
         if (! in_array($method, array_keys($possible_files))) {
-            return;
+            return '';
         }
 
         $possible_files = explode(' ', $possible_files[$method]);
@@ -794,7 +794,6 @@ class CodebirdSN
             // is it an array?
             if (is_array($value)) {
                 throw new \Exception('Using URL-encoded parameters is not supported for uploading media.');
-                continue;
             }
 
             // check for filenames
