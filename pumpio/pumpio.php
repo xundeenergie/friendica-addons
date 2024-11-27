@@ -345,14 +345,14 @@ function pumpio_hook_fork(array &$b)
 
 	if (DI::pConfig()->get($post['uid'], 'pumpio', 'import')) {
 		// Don't fork if it isn't a reply to a pump.io post
-		if (($post['parent'] != $post['id']) && !Post::exists(['id' => $post['parent'], 'network' => Protocol::PUMPIO])) {
+		if (($post['gravity'] != Item::GRAVITY_PARENT) && !Post::exists(['id' => $post['parent'], 'network' => Protocol::PUMPIO])) {
 			Logger::notice('No pump.io parent found for item ' . $post['id']);
 			$b['execute'] = false;
 			return;
 		}
 	} else {
 		// Comments are never exported when we don't import the pumpio timeline
-		if (!strstr($post['postopts'], 'pumpio') || ($post['parent'] != $post['id']) || $post['private']) {
+		if (!strstr($post['postopts'], 'pumpio') || ($post['gravity'] != Item::GRAVITY_PARENT)|| ($post['private'] == Item::PRIVATE)) {
 			$b['execute'] = false;
 			return;
 		}
@@ -412,7 +412,7 @@ function pumpio_send(array &$b)
 
 		Logger::notice('pumpio_send: receiver ', $receiver);
 
-		if (!count($receiver) && ($b['private'] || !strstr($b['postopts'], 'pumpio'))) {
+		if (!count($receiver) && ($b['private'] == Item::PRIVATE) || !strstr($b['postopts'], 'pumpio')) {
 			return;
 		}
 
@@ -1319,7 +1319,7 @@ function pumpio_getreceiver(array $b)
 {
 	$receiver = [];
 
-	if (!$b['private']) {
+	if ($b['private'] != Item::PRIVATE) {
 		if (!strstr($b['postopts'], 'pumpio')) {
 			return $receiver;
 		}

@@ -13,6 +13,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 
 function libertree_install()
@@ -74,13 +75,11 @@ function libertree_settings(array &$data)
 function libertree_settings_post(array &$b)
 {
 	if (!empty($_POST['libertree-submit'])) {
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(),'libertree','post',intval($_POST['libertree']));
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(),'libertree','post_by_default',intval($_POST['libertree_bydefault']));
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(),'libertree','libertree_api_token',trim($_POST['libertree_api_token']));
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(),'libertree','libertree_url',trim($_POST['libertree_url']));
-
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'libertree', 'post', intval($_POST['libertree']));
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'libertree', 'post_by_default', intval($_POST['libertree_bydefault']));
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'libertree', 'libertree_api_token', trim($_POST['libertree_api_token']));
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'libertree', 'libertree_url', trim($_POST['libertree_url']));
 	}
-
 }
 
 function libertree_hook_fork(array &$b)
@@ -91,8 +90,10 @@ function libertree_hook_fork(array &$b)
 
 	$post = $b['data'];
 
-	if ($post['deleted'] || $post['private'] || ($post['created'] !== $post['edited']) ||
-		!strstr($post['postopts'], 'libertree') || ($post['parent'] != $post['id'])) {
+	if (
+		$post['deleted'] || ($post['private'] == Item::PRIVATE) || ($post['created'] !== $post['edited']) ||
+		!strstr($post['postopts'], 'libertree') || ($post['gravity'] != Item::GRAVITY_PARENT)
+	) {
 		$b['execute'] = false;
 		return;
 	}
@@ -100,26 +101,20 @@ function libertree_hook_fork(array &$b)
 
 function libertree_post_local(array &$b)
 {
-
-	// This can probably be changed to allow editing by pointing to a different API endpoint
-
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	// This can probably be changed to allow editing by pointing to a different API endpoint
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
-	$ltree_post   = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'libertree','post'));
+	$ltree_post   = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'libertree', 'post'));
 
 	$ltree_enable = (($ltree_post && !empty($_REQUEST['libertree_enable'])) ? intval($_REQUEST['libertree_enable']) : 0);
 
-	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'libertree','post_by_default'))) {
+	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'libertree', 'post_by_default'))) {
 		$ltree_enable = 1;
 	}
 
@@ -138,11 +133,11 @@ function libertree_send(array &$b)
 {
 	Logger::notice('libertree_send: invoked');
 
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
-	if (! strstr($b['postopts'],'libertree')) {
+	if (! strstr($b['postopts'], 'libertree')) {
 		return;
 	}
 
@@ -159,15 +154,15 @@ function libertree_send(array &$b)
 
 	$b['body'] = Post\Media::addAttachmentsToBody($b['uri-id'], DI::contentItem()->addSharedPost($b));
 
-	$ltree_api_token = DI::pConfig()->get($b['uid'],'libertree','libertree_api_token');
-	$ltree_url = DI::pConfig()->get($b['uid'],'libertree','libertree_url');
+	$ltree_api_token = DI::pConfig()->get($b['uid'], 'libertree', 'libertree_api_token');
+	$ltree_url = DI::pConfig()->get($b['uid'], 'libertree', 'libertree_url');
 	$ltree_blog = "$ltree_url/api/v1/posts/create/?token=$ltree_api_token";
 	$ltree_source = DI::baseUrl()->getHost();
 
 	if ($b['app'] != "")
-		$ltree_source .= " (".$b['app'].")";
+		$ltree_source .= " (" . $b['app'] . ")";
 
-	if($ltree_url && $ltree_api_token && $ltree_blog && $ltree_source) {
+	if ($ltree_url && $ltree_api_token && $ltree_blog && $ltree_source) {
 		$title = $b['title'];
 		$body = $b['body'];
 		// Insert a newline before and after a quote
@@ -177,7 +172,7 @@ function libertree_send(array &$b)
 		// Removal of tags and mentions
 		// #-tags
 		$body = preg_replace('/#\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '#$2', $body);
- 		// @-mentions
+		// @-mentions
 		$body = preg_replace('/@\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '@$2', $body);
 
 		// remove multiple newlines
@@ -198,7 +193,7 @@ function libertree_send(array &$b)
 		$params = [
 			'text' => $body,
 			'source' => $ltree_source
-		//	'token' => $ltree_api_token
+			//	'token' => $ltree_api_token
 		];
 
 		$result = DI::httpClient()->post($ltree_blog, $params)->getBodyString();

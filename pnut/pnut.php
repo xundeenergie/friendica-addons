@@ -18,6 +18,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use phpnut\phpnutException;
 
@@ -82,7 +83,7 @@ function pnut_connect()
 		$o = DI::l10n()->t('Error fetching token. Please try again.', ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 	}
 
-	$o .= '<br /><a href="' . DI::baseUrl() . '/settings/connectors">' . DI::l10n()->t("return to the connector page").'</a>';
+	$o .= '<br /><a href="' . DI::baseUrl() . '/settings/connectors">' . DI::l10n()->t("return to the connector page") . '</a>';
 
 	return $o;
 }
@@ -119,14 +120,14 @@ function pnut_settings(array &$data)
 	}
 
 	$redirectUri  = DI::baseUrl() . '/pnut/connect';
-	$scope        = ['write_post','files'];
+	$scope        = ['write_post', 'files'];
 
 	$enabled       = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'pnut', 'post') ?? false;
 	$def_enabled   = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'pnut', 'post_by_default') ?? false;
 	$client_id     = DI::config()->get('pnut', 'client_id');
 	$client_secret = DI::config()->get('pnut', 'client_secret');
 	$token         = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'pnut', 'access_token');
-	
+
 	$user_client = empty($client_id) || empty($client_secret);
 	if ($user_client) {
 		$client_id     = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'pnut', 'client_id');
@@ -221,7 +222,7 @@ function pnut_hook_fork(array &$b)
 		return;
 	}
 
-	if (!strstr($post['postopts'] ?? '', 'pnut') || ($post['parent'] != $post['id']) || $post['private']) {
+	if (!strstr($post['postopts'] ?? '', 'pnut') || ($post['gravity'] != Item::GRAVITY_PARENT) || ($post['private'] == Item::PRIVATE)) {
 		$b['execute'] = false;
 		return;
 	}
@@ -229,15 +230,11 @@ function pnut_hook_fork(array &$b)
 
 function pnut_post_local(array &$b)
 {
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
@@ -265,7 +262,7 @@ function pnut_post_hook(array &$b)
 	/**
 	 * Post to pnut.io
 	 */
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 

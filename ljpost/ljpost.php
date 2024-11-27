@@ -14,6 +14,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -35,7 +36,7 @@ function ljpost_jot_nets(array &$jotnets_fields)
 		return;
 	}
 
-	if (DI::pConfig()->get(DI::userSession()->getLocalUserId(),'ljpost','post')) {
+	if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'ljpost', 'post')) {
 		$jotnets_fields[] = [
 			'type' => 'checkbox',
 			'field' => [
@@ -57,7 +58,7 @@ function ljpost_settings(array &$data)
 	$ij_username = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'ljpost', 'ij_username');
 	$def_enabled = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'ljpost', 'post_by_default');
 
-	$t= Renderer::getMarkupTemplate('connector_settings.tpl', 'addon/ljpost/');
+	$t = Renderer::getMarkupTemplate('connector_settings.tpl', 'addon/ljpost/');
 	$html = Renderer::replaceMacros($t, [
 		'$enabled'   => ['ljpost', DI::l10n()->t('Enable LiveJournal Post Addon'), $enabled],
 		'$username'  => ['ij_username', DI::l10n()->t('LiveJournal username'), $ij_username],
@@ -86,20 +87,16 @@ function ljpost_settings_post(array &$b)
 
 function ljpost_post_local(array &$b)
 {
-	// This can probably be changed to allow editing by pointing to a different API endpoint
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	// This can probably be changed to allow editing by pointing to a different API endpoint
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
-	$lj_post   = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'ljpost','post'));
+	$lj_post   = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'ljpost', 'post'));
 	$lj_enable = (($lj_post && !empty($_REQUEST['ljpost_enable'])) ? intval($_REQUEST['ljpost_enable']) : 0);
 
 	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'ljpost', 'post_by_default'))) {
@@ -118,11 +115,11 @@ function ljpost_post_local(array &$b)
 
 function ljpost_send(array &$b)
 {
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
-	if (!strstr($b['postopts'],'ljpost')) {
+	if (!strstr($b['postopts'], 'ljpost')) {
 		return;
 	}
 
@@ -139,13 +136,13 @@ function ljpost_send(array &$b)
 	$user = User::getById($b['uid']);
 	$tz = $user['timezone'] ?: 'UTC';
 
-	$lj_username = XML::escape(DI::pConfig()->get($b['uid'],'ljpost','lj_username'));
-	$lj_password = XML::escape(DI::pConfig()->get($b['uid'],'ljpost','lj_password'));
-	$lj_journal = XML::escape(DI::pConfig()->get($b['uid'],'ljpost','lj_journal'));
-//	if(! $lj_journal)
-//		$lj_journal = $lj_username;
+	$lj_username = XML::escape(DI::pConfig()->get($b['uid'], 'ljpost', 'lj_username'));
+	$lj_password = XML::escape(DI::pConfig()->get($b['uid'], 'ljpost', 'lj_password'));
+	$lj_journal = XML::escape(DI::pConfig()->get($b['uid'], 'ljpost', 'lj_journal'));
+	//	if(! $lj_journal)
+	//		$lj_journal = $lj_username;
 
-	$lj_blog = XML::escape(DI::pConfig()->get($b['uid'],'ljpost','lj_blog'));
+	$lj_blog = XML::escape(DI::pConfig()->get($b['uid'], 'ljpost', 'lj_blog'));
 	if (!strlen($lj_blog)) {
 		$lj_blog = XML::escape('http://www.livejournal.com/interface/xmlrpc');
 	}
@@ -157,11 +154,11 @@ function ljpost_send(array &$b)
 		$tags = Tag::getCSVByURIId($b['uri-id'], [Tag::HASHTAG]);
 
 		$date = DateTimeFormat::convert($b['created'], $tz);
-		$year = intval(substr($date,0,4));
-		$mon  = intval(substr($date,5,2));
-		$day  = intval(substr($date,8,2));
-		$hour = intval(substr($date,11,2));
-		$min  = intval(substr($date,14,2));
+		$year = intval(substr($date, 0, 4));
+		$mon  = intval(substr($date, 5, 2));
+		$day  = intval(substr($date, 8, 2));
+		$hour = intval(substr($date, 11, 2));
+		$min  = intval(substr($date, 14, 2));
 
 		$xml = <<< EOT
 <?xml version="1.0" encoding="utf-8"?>

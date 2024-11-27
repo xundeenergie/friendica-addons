@@ -108,8 +108,8 @@ function wppost_hook_fork(array &$b)
 	$post = $b['data'];
 
 	if (
-		$post['deleted'] || $post['private'] || ($post['created'] !== $post['edited']) ||
-		!strstr($post['postopts'] ?? '', 'wppost') || ($post['parent'] != $post['id'])
+		$post['deleted'] || ($post['private'] == Item::PRIVATE) || ($post['created'] !== $post['edited']) ||
+		!strstr($post['postopts'] ?? '', 'wppost') || ($post['gravity'] != Item::GRAVITY_PARENT)
 	) {
 		$b['execute'] = false;
 		return;
@@ -118,18 +118,12 @@ function wppost_hook_fork(array &$b)
 
 function wppost_post_local(array &$b)
 {
-
-	// This can probably be changed to allow editing by pointing to a different API endpoint
-
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	// This can probably be changed to allow editing by pointing to a different API endpoint
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
@@ -152,12 +146,9 @@ function wppost_post_local(array &$b)
 	$b['postopts'] .= 'wppost';
 }
 
-
-
-
 function wppost_send(array &$b)
 {
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
