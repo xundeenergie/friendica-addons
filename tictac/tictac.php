@@ -70,6 +70,7 @@ class tictac {
   private $dimen;
   private $first_move = true;
   private $handicap = 0;
+  private $mefirst;
   private $yours;
   private $mine;
   private $winning_play;
@@ -161,10 +162,10 @@ class tictac {
 
   ];
 
-  function __construct($dimen,$handicap,$mefirst,$yours,$mine) {
+  function __construct($dimen, $handicap, $mefirst, $yours, $mine) {
     $this->dimen = 3;
-    $this->handicap = (($handicap) ? 1 : 0);
-    $this->mefirst = (($mefirst) ? 1 : 0);
+    $this->handicap = $handicap ? 1 : 0;
+    $this->mefirst = $mefirst ? 1 : 0;
     $this->yours = str_replace('XXX','',$yours);
     $this->mine  = $mine;
     $this->you = $this->parse_moves('you');
@@ -175,6 +176,7 @@ class tictac {
   }
 
   function play() {
+     $o = '';
 
      if($this->first_move) {
        if(rand(0,1) == 1) {
@@ -629,7 +631,7 @@ function winning_move() {
   function draw_board() {
     if(! strlen($this->yours))
       $this->yours = 'XXX';
-    $o .=  "<form action=\"tictac/{$this->handicap}/{$this->mefirst}/{$this->dimen}/{$this->yours}/{$this->mine}\" method=\"post\" />";
+    $o =  "<form action=\"tictac/{$this->handicap}/{$this->mefirst}/{$this->dimen}/{$this->yours}/{$this->mine}\" method=\"post\" />";
     for($x = 0; $x < $this->dimen; $x ++) {
       $o .=  '<table>';
       for($y = 0; $y < $this->dimen; $y ++) {

@@ -192,9 +192,30 @@ function advancedcontentfilter_init()
 	if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] == 'api') {
 		$slim = \Slim\Factory\AppFactory::create();
 
-		require __DIR__ . '/src/middlewares.php';
+		/**
+		 * The routing middleware should be added before the ErrorMiddleware
+		 * Otherwise exceptions thrown from it will not be handled
+		 */
+		$slim->addRoutingMiddleware();
 
-		require __DIR__ . '/src/routes.php';
+		$slim->addErrorMiddleware(true, true, true, DI::logger());
+
+		// register routes
+		$slim->group('/advancedcontentfilter/api', function (\Slim\Routing\RouteCollectorProxy $app) {
+			$app->group('/rules', function (\Slim\Routing\RouteCollectorProxy $app) {
+				$app->get('', 'advancedcontentfilter_get_rules');
+				$app->post('', 'advancedcontentfilter_post_rules');
+
+				$app->get('/{id}', 'advancedcontentfilter_get_rules_id');
+				$app->put('/{id}', 'advancedcontentfilter_put_rules_id');
+				$app->delete('/{id}', 'advancedcontentfilter_delete_rules_id');
+			});
+
+			$app->group('/variables', function (\Slim\Routing\RouteCollectorProxy $app) {
+				$app->get('/{guid}', 'advancedcontentfilter_get_variables_guid');
+			});
+		});
+
 		$slim->run();
 
 		exit;
