@@ -1519,6 +1519,7 @@ class PHPMailer
     public function getSMTPInstance()
     {
         if (!is_object($this->smtp)) {
+            /** @phpstan-ignore-next-line file class.smtp.php does not exist */
             $this->smtp = new SMTP;
         }
         return $this->smtp;
@@ -2705,7 +2706,7 @@ class PHPMailer
             $file_buffer = $this->encodeString($file_buffer, $encoding);
             if ($magic_quotes) {
                 if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-                    set_magic_quotes_runtime($magic_quotes);
+                    //set_magic_quotes_runtime($magic_quotes);
                 } else {
                     ini_set('magic_quotes_runtime', $magic_quotes);
                 }
