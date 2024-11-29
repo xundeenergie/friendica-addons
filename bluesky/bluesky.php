@@ -1563,7 +1563,7 @@ function bluesky_get_uri_class(string $uri): ?stdClass
 	}
 
 	$elements = explode(':', $uri);
-	if (empty($elements) || ($elements[0] != 'at')) {
+	if ($elements[0] !== 'at') {
 		$post = Post::selectFirstPost(['extid'], ['uri' => $uri]);
 		return bluesky_get_uri_class($post['extid'] ?? '');
 	}
