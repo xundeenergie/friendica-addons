@@ -17,6 +17,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Core\Worker;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 
 function diaspora_install()
@@ -120,15 +121,15 @@ function diaspora_settings(array &$data)
 function diaspora_settings_post(array &$b)
 {
 	if (!empty($_POST['diaspora-submit'])) {
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(),'diaspora', 'post'           , intval($_POST['enabled']));
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'diaspora', 'post', intval($_POST['enabled']));
 		if (intval($_POST['enabled'])) {
 			if (isset($_POST['handle'])) {
-				DI::pConfig()->set(DI::userSession()->getLocalUserId(),'diaspora', 'handle'         , trim($_POST['handle']));
-				DI::pConfig()->set(DI::userSession()->getLocalUserId(),'diaspora', 'password'       , trim($_POST['password']));
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'diaspora', 'handle', trim($_POST['handle']));
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'diaspora', 'password', trim($_POST['password']));
 			}
 			if (!empty($_POST['aspect'])) {
-				DI::pConfig()->set(DI::userSession()->getLocalUserId(),'diaspora', 'aspect'         , trim($_POST['aspect']));
-				DI::pConfig()->set(DI::userSession()->getLocalUserId(),'diaspora', 'post_by_default', intval($_POST['post_by_default']));
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'diaspora', 'aspect', trim($_POST['aspect']));
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'diaspora', 'post_by_default', intval($_POST['post_by_default']));
 			}
 		} else {
 			DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'diaspora', 'password');
@@ -144,8 +145,10 @@ function diaspora_hook_fork(array &$b)
 
 	$post = $b['data'];
 
-	if ($post['deleted'] || $post['private'] || ($post['created'] !== $post['edited']) ||
-		!strstr($post['postopts'] ?? '', 'diaspora') || ($post['parent'] != $post['id'])) {
+	if (
+		$post['deleted'] || ($post['private'] == Item::PRIVATE) || ($post['created'] !== $post['edited']) ||
+		!strstr($post['postopts'] ?? '', 'diaspora') || ($post['gravity'] != Item::GRAVITY_PARENT)
+	) {
 		$b['execute'] = false;
 		return;
 	}
@@ -153,23 +156,19 @@ function diaspora_hook_fork(array &$b)
 
 function diaspora_post_local(array &$b)
 {
-	if ($b['edit']) {
-		return;
-	}
-
 	if (!DI::userSession()->getLocalUserId() || (DI::userSession()->getLocalUserId() != $b['uid'])) {
 		return;
 	}
 
-	if ($b['private'] || $b['parent']) {
+	if ($b['edit'] || ($b['private'] == Item::PRIVATE) || ($b['gravity'] != Item::GRAVITY_PARENT)) {
 		return;
 	}
 
-	$diaspora_post   = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'diaspora','post'));
+	$diaspora_post   = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'diaspora', 'post'));
 
 	$diaspora_enable = (($diaspora_post && !empty($_REQUEST['diaspora_enable'])) ? intval($_REQUEST['diaspora_enable']) : 0);
 
-	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(),'diaspora','post_by_default'))) {
+	if ($b['api_source'] && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'diaspora', 'post_by_default'))) {
 		$diaspora_enable = 1;
 	}
 
@@ -190,11 +189,11 @@ function diaspora_send(array &$b)
 
 	Logger::notice('diaspora_send: invoked');
 
-	if ($b['deleted'] || $b['private'] || ($b['created'] !== $b['edited'])) {
+	if ($b['deleted'] || ($b['private'] == Item::PRIVATE) || ($b['created'] !== $b['edited'])) {
 		return;
 	}
 
-	if (!strstr($b['postopts'],'diaspora')) {
+	if (!strstr($b['postopts'], 'diaspora')) {
 		return;
 	}
 
@@ -214,9 +213,9 @@ function diaspora_send(array &$b)
 
 	Logger::info('diaspora_send: prepare posting');
 
-	$handle = DI::pConfig()->get($b['uid'],'diaspora','handle');
-	$password = DI::pConfig()->get($b['uid'],'diaspora','password');
-	$aspect = DI::pConfig()->get($b['uid'],'diaspora','aspect');
+	$handle = DI::pConfig()->get($b['uid'], 'diaspora', 'handle');
+	$password = DI::pConfig()->get($b['uid'], 'diaspora', 'password');
+	$aspect = DI::pConfig()->get($b['uid'], 'diaspora', 'aspect');
 
 	if ($handle && $password) {
 		Logger::info('diaspora_send: all values seem to be okay');
@@ -230,7 +229,7 @@ function diaspora_send(array &$b)
 		// Removal of tags and mentions
 		// #-tags
 		$body = preg_replace('/#\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '#$2', $body);
- 		// @-mentions
+		// @-mentions
 		$body = preg_replace('/@\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '@$2', $body);
 
 		// remove multiple newlines
@@ -244,7 +243,7 @@ function diaspora_send(array &$b)
 
 		// Adding the title
 		if (strlen($title)) {
-			$body = "## ".html_entity_decode($title)."\n\n".$body;
+			$body = "## " . html_entity_decode($title) . "\n\n" . $body;
 		}
 
 		require_once "addon/diaspora/diasphp.php";
@@ -252,9 +251,9 @@ function diaspora_send(array &$b)
 		try {
 			Logger::info('diaspora_send: prepare');
 			$conn = new Diaspora_Connection($handle, $password);
-			Logger::info('diaspora_send: try to log in '.$handle);
+			Logger::info('diaspora_send: try to log in ' . $handle);
 			$conn->logIn();
-			Logger::info('diaspora_send: try to send '.$body);
+			Logger::info('diaspora_send: try to send ' . $body);
 
 			$conn->provider = $hostname;
 			$conn->postStatusMessage($body, $aspect);
@@ -263,7 +262,7 @@ function diaspora_send(array &$b)
 		} catch (Exception $e) {
 			Logger::notice("diaspora_send: Error submitting the post: " . $e->getMessage());
 
-			Logger::info('diaspora_send: requeueing '.$b['uid']);
+			Logger::info('diaspora_send: requeueing ' . $b['uid']);
 
 			Worker::defer();
 		}
