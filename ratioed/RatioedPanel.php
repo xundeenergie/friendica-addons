@@ -26,6 +26,7 @@ class RatioedPanel extends Active
 
 		$action = $this->parameters['action'] ?? '';
 		$uid	= $this->parameters['uid']	?? 0;
+		$user   = [];
 
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);
