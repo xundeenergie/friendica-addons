@@ -8,7 +8,6 @@
  *
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
@@ -119,7 +118,9 @@ function nsfw_prepare_body_content_filter(&$hook_data)
 		$word_list = ['nsfw'];
 	}
 
-	$found = false;
+	$found      = false;
+	$tag_search = false;
+
 	if (count($word_list)) {
 		$body = $hook_data['item']['title'] . "\n" . nsfw_extract_photos($hook_data['item']['body']);
 
@@ -129,7 +130,6 @@ function nsfw_prepare_body_content_filter(&$hook_data)
 				continue;
 			}
 
-			$tag_search = false;
 			switch ($word[0]) {
 				case '/'; // Regular expression
 					$found = @preg_match($word, $body);
