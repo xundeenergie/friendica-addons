@@ -7,7 +7,6 @@
  * Status: unsupported
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\DI;
 
@@ -30,7 +29,12 @@ function tictac_module() {}
 
 function tictac_content() {
 
-	$o = '';
+  $o        = '';
+  $dimen    = 3;
+  $handicap = 0;
+  $mefirst  = 0;
+  $yours    = '';
+  $mine     = '';
 
   if($_POST['move']) {
     $handicap = DI::args()->get(1);
@@ -44,9 +48,6 @@ function tictac_content() {
   elseif(DI::args()->getArgc() > 1) {
     $handicap = DI::args()->get(1);
     $dimen = 3;
-  }
-  else {
-   $dimen = 3;
   }
 
   $o .=  '<h3>' . DI::l10n()->t('3D Tic-Tac-Toe') . '</h3><br />';
@@ -163,7 +164,7 @@ class tictac {
   ];
 
   function __construct($dimen, $handicap, $mefirst, $yours, $mine) {
-    $this->dimen = 3;
+    $this->dimen = $dimen;
     $this->handicap = $handicap ? 1 : 0;
     $this->mefirst = $mefirst ? 1 : 0;
     $this->yours = str_replace('XXX','',$yours);
@@ -228,6 +229,8 @@ class tictac {
   }
 
   function parse_moves($player) {
+    $str = '';
+
     if($player == 'me')
       $str = $this->mine;
     if($player == 'you')
