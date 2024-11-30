@@ -6,7 +6,6 @@
  * Author: Michael Vogel <http://pirati.ca/profile/heluecht>
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
@@ -582,6 +581,8 @@ function pumpio_action(int $uid, string $uri, string $action, string $content = 
 		$uri = $orig_post['uri'];
 	}
 
+	$objectType = '';
+
 	if (($orig_post['object-type'] != '') && (strstr($orig_post['object-type'], ActivityNamespace::ACTIVITY_SCHEMA))) {
 		$objectType = str_replace(ActivityNamespace::ACTIVITY_SCHEMA, '', $orig_post['object-type']);
 	} elseif (strstr($uri, '/api/comment/')) {
@@ -827,6 +828,7 @@ function pumpio_dounlike(int $uid, array $self, $post, string $own_id)
 	}
 
 	$contactid = 0;
+	$contact   = [];
 
 	if (Strings::compareLink($post->actor->url, $own_id)) {
 		$contactid = $self['id'];
@@ -1429,6 +1431,8 @@ function pumpio_fetchallcomments($uid, $id)
 	$client->access_token_secret = $osecret;
 
 	Logger::notice('pumpio_fetchallcomments: fetching comment for user ' . $uid . ', URL ' . $url);
+
+	$item = new \stdClass();
 
 	if (pumpio_reachable($url)) {
 		$success = $client->CallAPI($url, 'GET', [], ['FailOnAccessError' => true], $item);
