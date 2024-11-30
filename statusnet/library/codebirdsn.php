@@ -31,11 +31,10 @@ use Friendica\Core\System;
 /**
  * Define constants
  */
-$constants = explode(' ', 'OBJECT ARRAY JSON');
-foreach ($constants as $i => $id) {
-    $id = 'CODEBIRD_RETURNFORMAT_' . $id;
-    defined($id) or define($id, $i);
-}
+defined('CODEBIRD_RETURNFORMAT_ARRAY') or define('CODEBIRD_RETURNFORMAT_ARRAY', 0);
+defined('CODEBIRD_RETURNFORMAT_JSON') or define('CODEBIRD_RETURNFORMAT_JSON', 1);
+defined('CODEBIRD_RETURNFORMAT_OBJECT') or define('CODEBIRD_RETURNFORMAT_OBJECT', 2);
+
 $constants = array(
     'CURLE_SSL_CERTPROBLEM' => 58,
     'CURLE_SSL_CACERT' => 60,
@@ -788,6 +787,8 @@ class CodebirdSN
 
         $possible_files = explode(' ', $possible_files[$method]);
 
+        $data = '';
+
         $multipart_border = '--------------------' . $this->_nonce();
         $multipart_request = '';
         foreach ($params as $key => $value) {
@@ -917,7 +918,7 @@ class CodebirdSN
             $authorization = 'Authorization: Bearer ' . self::$_oauth_bearer_token;
         }
         $request_headers = array();
-        if (isset($authorization)) {
+        if ($authorization !== '') {
             $request_headers[] = $authorization;
             $request_headers[] = 'Expect:';
         }
