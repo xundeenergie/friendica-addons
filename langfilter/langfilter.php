@@ -7,7 +7,6 @@
  * License: MIT
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
@@ -147,6 +146,8 @@ function langfilter_prepare_body_content_filter(&$hook_data)
 	$read_languages_array = explode(',', $read_languages_string);
 
 	$iso639 = new Matriphe\ISO639\ISO639;
+
+	$confidence = null;
 
 	// Extract the language of the post
 	if (!empty($hook_data['item']['language'])) {
