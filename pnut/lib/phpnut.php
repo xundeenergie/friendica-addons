@@ -1339,6 +1339,8 @@ class phpnut
      */
     protected function updateUserImage(string $image, string $which='avatar')
     {
+        $mimeType = '';
+
         $test = @getimagesize($image);
         if ($test && array_key_exists('mime', $test)) {
             $mimeType = $test['mime'];
