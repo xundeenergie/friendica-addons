@@ -366,6 +366,8 @@ function statusnet_post_hook(array &$b)
 	$otoken  = DI::pConfig()->get($b['uid'], 'statusnet', 'oauthtoken');
 	$osecret = DI::pConfig()->get($b['uid'], 'statusnet', 'oauthsecret');
 
+	$iscomment = null;
+
 	if ($ckey && $csecret && $otoken && $osecret) {
 		$dent = new StatusNetOAuth($api, $ckey, $csecret, $otoken, $osecret);
 		$max_char = $dent->get_maxlength(); // max. length for a dent
