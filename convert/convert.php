@@ -181,7 +181,7 @@ function convert_content() {
 		}
 	}
 
-	$o .= '<h3>Unit Conversions</h3>';
+	$o = '<h3>Unit Conversions</h3>';
 
 	if (isset($_POST['from_unit']) && isset($_POST['value'])) {
 		$o .= ($conv->getTable(intval($_POST['value']), $_POST['from_unit'], $_POST['to_unit'], 5)) . '</p>';
