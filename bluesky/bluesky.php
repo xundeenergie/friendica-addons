@@ -683,6 +683,8 @@ function bluesky_create_activity(array $item, stdClass $parent = null)
 		return;
 	}
 
+	$post = [];
+
 	if ($item['verb'] == Activity::LIKE) {
 		$record = [
 			'subject'   => $parent,
