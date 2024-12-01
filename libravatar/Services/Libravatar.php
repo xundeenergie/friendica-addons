@@ -217,7 +217,7 @@ class Services_Libravatar
      *
      * @param array $options Array of options for getUrl()
      *
-     * @return void
+     * @return array
      * @throws Exception When an invalid option is used
      */
     protected function checkOptionsArray($options)
@@ -462,6 +462,8 @@ class Services_Libravatar
                 return $v['target'];
             }
         }
+
+        return '';
     }
 
     /**

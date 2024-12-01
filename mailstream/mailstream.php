@@ -378,7 +378,7 @@ function mailstream_send(string $message_id, array $item, array $user): bool
 	if (!$address) {
 		$address = $user['email'];
 	}
-	$mail = new PHPmailer();
+	$mail = new PHPMailer();
 	try {
 		$mail->XMailer = 'Friendica Mailstream Addon';
 		$mail->SetFrom($frommail, mailstream_sender($item));
