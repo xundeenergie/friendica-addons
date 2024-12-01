@@ -70,10 +70,10 @@ const BLUEKSY_STATUS_TOKEN_FAIL = 13;
 /*
  * (Currently) hard wired paths for Bluesky services
  */
-const BLUESKY_DIRECTORY = 'https://plc.directory'; // Path to the directory server service to fetch the PDS of a given DID
-const BLUESKY_PDS       = 'https://bsky.social';   // Path to the personal data server service (PDS) to fetch the DID for a given handle
-const BLUESKY_WEB       = 'https://bsky.app';      // Path to the web interface with the user profile and posts
-const BLUESKY_HOSTNAME  = 'bsky.social';           // Host name to be added to the handle if incomplete
+const BLUESKY_APPVIEW_API = 'https://public.api.bsky.app'; // Path to the public Bluesky AppView API.
+const BLUESKY_DIRECTORY   = 'https://plc.directory';       // Path to the directory server service to fetch the PDS of a given DID
+const BLUESKY_WEB         = 'https://bsky.app';            // Path to the web interface with the user profile and posts
+const BLUESKY_HOSTNAME    = 'bsky.social';                 // Host name to be added to the handle if incomplete
 
 function bluesky_install()
 {
@@ -1984,8 +1984,8 @@ function bluesky_get_did(string $handle, int $uid): string
 		return $did;
 	}
 
-	// And finally we use the default PDS from Bluesky.
-	$data = bluesky_get(BLUESKY_PDS . '/xrpc/com.atproto.identity.resolveHandle?handle=' . urlencode($handle));
+	// And finally we use the AppView API.
+	$data = bluesky_get(BLUESKY_APPVIEW_API . '/xrpc/com.atproto.identity.resolveHandle?handle=' . urlencode($handle));
 	if (!empty($data) && !empty($data->did)) {
 		Logger::debug('Got DID by system PDS call', ['handle' => $handle, 'did' => $data->did]);
 		return $data->did;
@@ -2021,6 +2021,10 @@ function bluesky_get_user_did(int $uid, bool $refresh = false): ?string
 
 function bluesky_get_user_pds(int $uid): ?string
 {
+	if ($uid == 0) {
+		return BLUESKY_APPVIEW_API;
+	}
+
 	$pds = DI::pConfig()->get($uid, 'bluesky', 'pds');
 	if (!empty($pds)) {
 		return $pds;
@@ -2104,6 +2108,7 @@ function bluesky_refresh_token(int $uid): string
 
 	$data = bluesky_post($uid, '/xrpc/com.atproto.server.refreshSession', '', ['Authorization' => ['Bearer ' . $token]]);
 	if (empty($data) || empty($data->accessJwt)) {
+		DI::pConfig()->set($uid, 'bluesky', 'status', BLUEKSY_STATUS_TOKEN_FAIL);
 		return '';
 	}
 
