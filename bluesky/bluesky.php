@@ -715,7 +715,7 @@ function bluesky_create_activity(array $item, stdClass $parent = null)
 	}
 	Logger::debug('Activity done', ['return' => $activity]);
 	$uri = bluesky_get_uri($activity);
-	Item::update(['extid' => $uri], ['id' => $item['id']]);
+	Item::update(['extid' => $uri], ['guid' => $item['guid']]);
 	Logger::debug('Set extid', ['id' => $item['id'], 'extid' => $activity]);
 }
 
@@ -806,7 +806,7 @@ function bluesky_create_post(array $item, stdClass $root = null, stdClass $paren
 		}
 		if (($key == 0) && ($item['gravity'] != Item::GRAVITY_PARENT)) {
 			$uri = bluesky_get_uri($parent);
-			Item::update(['extid' => $uri], ['id' => $item['id']]);
+			Item::update(['extid' => $uri], ['guid' => $item['guid']]);
 			Logger::debug('Set extid', ['id' => $item['id'], 'extid' => $uri]);
 		}
 	}
