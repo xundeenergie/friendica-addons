@@ -1519,7 +1519,6 @@ class PHPMailer
     public function getSMTPInstance()
     {
         if (!is_object($this->smtp)) {
-            /** @phpstan-ignore-next-line file class.smtp.php does not exist */
             $this->smtp = new SMTP;
         }
         return $this->smtp;
