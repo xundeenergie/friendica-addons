@@ -2177,14 +2177,12 @@ class phpnut
         );
     }
 
-
-
     /**
      * Registers your function (or an array of object and method) to be called
      * whenever an event is received via an open pnut.io stream. Your function
      * will receive a single parameter, which is the object wrapper containing
      * the meta and data.
-     * @param mixed $fuction A PHP callback (either a string containing the function name,
+     * @param mixed $function A PHP callback (either a string containing the function name,
      * or an array where the first element is the class/object and the second
      * is the method).
      */
