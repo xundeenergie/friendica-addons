@@ -60,7 +60,7 @@ function js_upload_post_init(array &$b)
 	// max file size in bytes
 	$sizeLimit = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 
-	$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
+	$uploader = new js_upload_qqFileUploader($allowedExtensions, $sizeLimit);
 
 	$result = $uploader->handleUpload();
 
@@ -101,7 +101,7 @@ function js_upload_post_end(int &$b)
 /**
  * Handle file uploads via XMLHttpRequest
  */
-class qqUploadedFileXhr
+class js_upload_qqUploadedFileXhr
 {
 	private $pathnm = '';
 
@@ -155,7 +155,7 @@ class qqUploadedFileXhr
 /**
  * Handle file uploads via regular form post (uses the $_FILES array)
  */
-class qqUploadedFileForm
+class js_upload_qqUploadedFileForm
 {
 	/**
 	 * Save the file to the specified path
@@ -183,7 +183,7 @@ class qqUploadedFileForm
 	}
 }
 
-class qqFileUploader
+class js_upload_qqFileUploader
 {
 	private $allowedExtensions;
 	private $sizeLimit;
@@ -197,9 +197,9 @@ class qqFileUploader
 		$this->sizeLimit = $sizeLimit;
 
 		if (isset($_GET['qqfile'])) {
-			$this->file = new qqUploadedFileXhr();
+			$this->file = new js_upload_qqUploadedFileXhr();
 		} elseif (isset($_FILES['qqfile'])) {
-			$this->file = new qqUploadedFileForm();
+			$this->file = new js_upload_qqUploadedFileForm();
 		} else {
 			$this->file = false;
 		}
