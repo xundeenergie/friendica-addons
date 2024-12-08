@@ -52,11 +52,6 @@ class StatusNetOAuth extends TwitterOAuth
 	 *
 	 * Copied here from the TwitterOAuth library and complemented by applying the proxy settings of Friendica
 	 *
-	 * @param string $method
-	 * @param string $host
-	 * @param string $path
-	 * @param array  $parameters
-	 *
 	 * @return array|object API results
 	 */
 	function http($url, $method, $postfields = NULL)

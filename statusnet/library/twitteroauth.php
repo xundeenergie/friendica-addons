@@ -93,7 +93,7 @@ class TwitterOAuth
 	/**
 	 * Get a request_token
 	 *
-	 * @param callback $oauth_callback
+	 * @param callable $oauth_callback
 	 * @return array
 	 */
 	function getRequestToken($oauth_callback = null)
@@ -112,8 +112,6 @@ class TwitterOAuth
 	/**
 	 * Get the authorize URL
 	 *
-	 * @param array $token
-	 * @param bool $sign_in_with_tumblr
 	 * @return string
 	 */
 	function getAuthorizeURL($token, $sign_in_with_twitter = TRUE)
