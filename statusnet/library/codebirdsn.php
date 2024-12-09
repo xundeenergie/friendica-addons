@@ -54,6 +54,8 @@ unset($id);
  *
  * @package codebird
  * @subpackage codebird-php
+ *
+ * @method object statuses_update(array $postdata)
  */
 class CodebirdSN
 {
