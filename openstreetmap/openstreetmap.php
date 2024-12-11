@@ -36,7 +36,7 @@ function openstreetmap_install()
 
 function openstreetmap_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('openstreetmap'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('openstreetmap'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 function openstreetmap_alterheader(&$navHtml)

@@ -50,7 +50,7 @@ function piwik_install() {
 
 function piwik_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('piwik'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('piwik'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 function piwik_analytics(string &$b)

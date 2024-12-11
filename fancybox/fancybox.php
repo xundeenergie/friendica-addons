@@ -39,7 +39,7 @@ function fancybox_render(array &$b){
 		function ($text) use ($gallery) {
 			// This processes images inlined in posts
 			// Frio / Vier hooks für lightbox are un-hooked in fancybox-config.js. So this works for them, too!
-			//if (!in_array(DI::app()->getCurrentTheme(),['vier','frio']))
+			//if (!in_array(DI::appHelper()->getCurrentTheme(),['vier','frio']))
 			$text = preg_replace(
 				'#<a[^>]*href="([^"]*)"[^>]*>(<img[^>]*src="[^"]*"[^>]*>)</a>#',
 				'<a data-fancybox="' . $gallery . '" href="$1">$2</a>',

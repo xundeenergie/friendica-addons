@@ -25,7 +25,7 @@ function gravatar_install() {
 
 function gravatar_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('gravatar'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('gravatar'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 /**

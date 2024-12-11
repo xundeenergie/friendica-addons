@@ -17,7 +17,7 @@ function highlightjs_install()
 
 function highlightjs_head(string &$str)
 {
-	if (DI::app()->getCurrentTheme() == 'frio') {
+	if (DI::appHelper()->getCurrentTheme() == 'frio') {
 		$style = 'bootstrap';
 	} else {
 		$style = 'default';

@@ -271,7 +271,7 @@ function advancedcontentfilter_content()
 				'rule_expression'   => DI::l10n()->t('Rule Expression'),
 				'cancel'            => DI::l10n()->t('Cancel'),
 			],
-			'$current_theme' => DI::app()->getCurrentTheme(),
+			'$current_theme' => DI::appHelper()->getCurrentTheme(),
 			'$rules' => DBA::toArray(DBA::select('advancedcontentfilter_rules', [], ['uid' => DI::userSession()->getLocalUserId()])),
 			'$form_security_token' => BaseModule::getFormSecurityToken()
 		]);
