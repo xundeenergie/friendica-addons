@@ -9,7 +9,6 @@
  *
  */
 
-use Friendica\App;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

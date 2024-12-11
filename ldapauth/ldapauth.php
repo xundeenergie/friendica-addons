@@ -29,7 +29,6 @@
  * The configuration options for this module are described in the config/ldapauth.config.php file
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;

@@ -7,7 +7,6 @@
  * License: 3-clause BSD license
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

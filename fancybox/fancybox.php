@@ -7,7 +7,6 @@
  * Status: Unsupported
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\DI;
 

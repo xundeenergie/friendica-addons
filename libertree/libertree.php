@@ -6,7 +6,6 @@
  * Author: Tony Baldwin <https://free-haven.org/u/tony>
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

@@ -7,7 +7,6 @@
  */
 
 use Friendica\Addon\securemail\SecureTestEmail;
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -32,8 +31,6 @@ function securemail_install()
  * @link  https://github.com/friendica/friendica/blob/develop/doc/Addons.md#addon_settings 'addon_settings' hook
  *
  * @param array $data
- *
- * @see   App
  */
 function securemail_settings(array &$data)
 {
@@ -67,8 +64,6 @@ function securemail_settings(array &$data)
  * @link  https://github.com/friendica/friendica/blob/develop/doc/Addons.md#addon_settings_post 'addon_settings_post' hook
  *
  * @param array $b hook data
- *
- * @see   App
  */
 function securemail_settings_post(array &$b)
 {
@@ -102,8 +97,6 @@ function securemail_settings_post(array &$b)
  * @link  https://github.com/friendica/friendica/blob/develop/doc/Addons.md#emailer_send_prepare 'emailer_send_prepare' hook
  *
  * @param IEmail $email Email
- *
- * @see   App
  */
 function securemail_emailer_send_prepare(IEmail &$email)
 {

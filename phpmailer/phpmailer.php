@@ -7,7 +7,6 @@
  * Maintainer: Hypolite Petovan <hypolite@friendica.mrpetovan.com>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\DI;
 use Friendica\Object\EMail\IEmail;

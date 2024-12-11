@@ -7,7 +7,6 @@
  *
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -76,6 +75,6 @@ function fromapp_post_hook(&$item)
 
 	$apps = explode(',', $app);
 	$item['app'] = trim($apps[mt_rand(0, count($apps)-1)]);
-	
+
 	return;
 }

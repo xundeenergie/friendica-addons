@@ -6,7 +6,6 @@
  * Author: Keith Fernie <http://friendika.me4.it/profile/keith>
  */
 
-use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

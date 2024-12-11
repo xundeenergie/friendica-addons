@@ -6,7 +6,6 @@
  * Author: Tobias Diekershoff <https://f.diekershoff.de/profile/tobias>
  ***/
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

@@ -8,7 +8,6 @@
  * Author: Cat Gray <https://free-haven.org/profile/catness>
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

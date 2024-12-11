@@ -6,7 +6,6 @@
  * Version: 0.1
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
  */
-use Friendica\App;
 use Friendica\Content\PageInfo;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

@@ -6,7 +6,6 @@
  * Author: Hypolite Petovan <hypolite@mrpetovan.com>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\DI;
 

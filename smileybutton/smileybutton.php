@@ -7,7 +7,6 @@
  * Maintainer: Hypolite Petovan <https://friendica.mrpetovan.com/profile/hypolite>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\DI;
 

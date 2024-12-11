@@ -5,7 +5,6 @@
  * Version: 0.1
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
  */
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Renderer;

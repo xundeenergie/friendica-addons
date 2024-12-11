@@ -35,7 +35,6 @@
  *     setting.
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -76,7 +75,7 @@ function piwik_analytics(string &$b)
 	 *   Add the Piwik tracking code for the site.
 	 *   If async is set to true use asynchronous tracking
 	 */
-	
+
 	$scriptAsyncValue = $async ? 'true' : 'false';
 	$scriptPhpEndpoint = $shortendpoint ? 'js/' : 'piwik.php';
 	$scriptJsEndpoint = $shortendpoint ? 'js/' : 'piwik.js';

@@ -6,7 +6,6 @@
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;

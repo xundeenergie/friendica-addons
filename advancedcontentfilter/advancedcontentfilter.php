@@ -33,7 +33,6 @@
  *
  */
 
-use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Hook;
@@ -42,7 +41,6 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;

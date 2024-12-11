@@ -4,11 +4,10 @@
  * Description: Thread email comment notifications on Gmail and anonymise them
  * Version: 1.0
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
- * 
+ *
  *
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -38,7 +37,7 @@ function gnot_settings_post($post) {
 }
 
 /**
- * Called from the Addon Setting form. 
+ * Called from the Addon Setting form.
  * Add our own settings info to the page.
  */
 function gnot_settings(array &$data)
