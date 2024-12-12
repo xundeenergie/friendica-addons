@@ -416,7 +416,7 @@ function bluesky_get_status(string $handle = null, string $did = null, string $p
 
 	switch ($status) {
 		case BLUEKSY_STATUS_TOKEN_OK:
-			return DI::l10n()->t("You are authenticated to Bluesky. For security reasons the password isn't stored.");
+			return DI::l10n()->t("You are authenticated to Bluesky.");
 		case BLUEKSY_STATUS_SUCCESS:
 			return DI::l10n()->t('The communication with the personal data server service (PDS) is established.');
 		case BLUEKSY_STATUS_API_FAIL;
@@ -447,6 +447,7 @@ function bluesky_settings_post(array &$b)
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'post',             intval($_POST['bluesky']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'post_by_default',  intval($_POST['bluesky_bydefault']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'handle',           $handle);
+	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'password',         $_POST['bluesky_password']);
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'import',           intval($_POST['bluesky_import']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'import_feeds',     intval($_POST['bluesky_import_feeds']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'complete_threads', intval($_POST['bluesky_complete_threads']));
@@ -466,6 +467,7 @@ function bluesky_settings_post(array &$b)
 	} else {
 		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'bluesky', 'did');
 		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'bluesky', 'pds');
+		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'bluesky', 'password');
 		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'bluesky', 'access_token');
 		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'bluesky', 'refresh_token');
 		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'bluesky', 'token_created');
@@ -2108,6 +2110,11 @@ function bluesky_refresh_token(int $uid): string
 
 	$data = bluesky_post($uid, '/xrpc/com.atproto.server.refreshSession', '', ['Authorization' => ['Bearer ' . $token]]);
 	if (empty($data) || empty($data->accessJwt)) {
+		Logger::debug('Refresh failed', ['return' => $data]);
+		$password = DI::pConfig()->get($uid, 'bluesky', 'password');
+		if (!empty($password)) {
+			return bluesky_create_token($uid, $password);
+		}
 		DI::pConfig()->set($uid, 'bluesky', 'status', BLUEKSY_STATUS_TOKEN_FAIL);
 		return '';
 	}
@@ -2174,7 +2181,11 @@ function bluesky_post(int $uid, string $url, string $params, array $headers): ?s
 		$data->code = $curlResult->getReturnCode();
 	}
 
-	DI::pConfig()->set($uid, 'bluesky', 'status', BLUEKSY_STATUS_SUCCESS);
+	if (!empty($data->code) && ($data->code >= 200) && ($data->code < 400)) {
+		DI::pConfig()->set($uid, 'bluesky', 'status', BLUEKSY_STATUS_SUCCESS);
+	} else {
+		DI::pConfig()->set($uid, 'bluesky', 'status', BLUEKSY_STATUS_API_FAIL);
+	}
 	return $data;
 }
 
@@ -2197,7 +2208,9 @@ function bluesky_xrpc_get(int $uid, string $url, array $parameters = []): ?stdCl
 	}
 
 	$data = bluesky_get($pds . '/xrpc/' . $url, HttpClientAccept::JSON, [HttpClientOptions::HEADERS => $headers]);
-	DI::pConfig()->set($uid, 'bluesky', 'status', is_null($data) ? BLUEKSY_STATUS_API_FAIL : BLUEKSY_STATUS_SUCCESS);
+	if ($uid != 0) {
+		DI::pConfig()->set($uid, 'bluesky', 'status', is_null($data) ? BLUEKSY_STATUS_API_FAIL : BLUEKSY_STATUS_SUCCESS);
+	}
 	return $data;
 }
 
