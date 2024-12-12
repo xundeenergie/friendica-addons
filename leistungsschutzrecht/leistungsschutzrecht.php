@@ -6,7 +6,6 @@
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
@@ -149,7 +148,7 @@ function leistungsschutzrecht_is_member_site(string $url): bool
 	$cleanedurlpart = explode('%', $urldata['host']);
 
 	$hostname = explode('.', $cleanedurlpart[0]);
-	if (empty($hostname)) {
+	if ($hostname === false || $hostname === '') {
 		return false;
 	}
 

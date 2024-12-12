@@ -683,6 +683,8 @@ function bluesky_create_activity(array $item, stdClass $parent = null)
 		return;
 	}
 
+	$post = [];
+
 	if ($item['verb'] == Activity::LIKE) {
 		$record = [
 			'subject'   => $parent,
@@ -1563,7 +1565,7 @@ function bluesky_get_uri_class(string $uri): ?stdClass
 	}
 
 	$elements = explode(':', $uri);
-	if (empty($elements) || ($elements[0] != 'at')) {
+	if ($elements[0] !== 'at') {
 		$post = Post::selectFirstPost(['extid'], ['uri' => $uri]);
 		return bluesky_get_uri_class($post['extid'] ?? '');
 	}

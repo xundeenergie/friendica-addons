@@ -6,7 +6,6 @@
  * Author: Ryan <https://verya.pe/profile/ryan>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -92,7 +91,7 @@ function keycloakpassword_authenticate(array &$b)
 			$client_id,
 			$secret,
 			$endpoint . '/logout',
-			[ 'refresh_token' => res['refresh_token'] ]
+			[ 'refresh_token' => $res['refresh_token'] ]
 		);
 	}
 }

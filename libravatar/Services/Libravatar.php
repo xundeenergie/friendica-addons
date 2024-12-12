@@ -401,9 +401,8 @@ class Services_Libravatar
      */
     protected function srvGet($domain, $https = false)
     {
-
         // Are we going secure? Set up a fallback too.
-        if (isset($https) && $https === true) {
+        if ($https === true) {
             $subdomain = '_avatars-sec._tcp.';
             $fallback  = 'seccdn.';
         } else {
@@ -426,6 +425,7 @@ class Services_Libravatar
 
         $top = $srv[0];
         $sum = 0;
+        $pri = [];
 
         // Try to adhere to RFC2782's weighting algorithm, page 3
         // "arrange all SRV RRs (that have not been ordered yet) in any order,
