@@ -108,7 +108,7 @@ class phpnut
     /**
      * Constructs an phpnut PHP object with the specified client ID and
      * client secret.
-     * @param string $client_id The client ID you received from pnut.io when
+     * @param string $client_id_or_token The client ID you received from pnut.io when
      * creating your app.
      * @param string $client_secret The client secret you received from
      * pnut.io when creating your app.
@@ -161,7 +161,7 @@ class phpnut
      * or not access to your app. Usually you would place this as a link for
      * the user to client, or a redirect to send them to the auth URL.
      * Also can be called after authentication for additional scopes
-     * @param string $callbackUri Where you want the user to be directed
+     * @param string $callback_uri Where you want the user to be directed
      * after authenticating with pnut.io. This must be one of the URIs
      * allowed by your pnut.io application settings.
      * @param array $scope An array of scopes (permissions) you wish to obtain
@@ -748,7 +748,7 @@ class phpnut
      * Delete a Post. The current user must be the same user who created the Post.
      * It returns the deleted Post on success.
      * @param integer $post_id The ID of the post to delete
-     * @param array An associative array representing the post that was deleted
+     * @return array An associative array representing the post that was deleted
      */
     public function deletePost(int $post_id)
     {
@@ -1296,7 +1296,7 @@ class phpnut
 
     /**
      * List the users who match a specific search term
-     * @param string $search The search query. Supports @username or #tag searches as
+     * @param string $query The search query. Supports @username or #tag searches as
      * well as normal search terms. Searches username, display name, bio information.
      * Does not search posts.
      * @return array|false An array of associative arrays, each representing one user.
@@ -2023,7 +2023,7 @@ class phpnut
     /**
      * Responds to a poll.
      * @param integer $poll_id The ID of the poll to respond to
-     * @param array list of positions for the poll response
+     * @param array $positions list of positions for the poll response
      * @param array $params An associative array of optional general parameters.
      */
     public function respondToPoll(int $poll_id, array $positions, array $params=[])
@@ -2098,8 +2098,6 @@ class phpnut
      * List the polls that match a specific search term
      * @param array $params a list of filter, search query, and general Poll parameters
      * see: https://docs.pnut.io/resources/channels/search
-     * @param string $query The search query. Supports
-     * normal search terms.
      * @return array An array of associative arrays, each representing one poll.
      * or false on error
      */
@@ -2179,14 +2177,12 @@ class phpnut
         );
     }
 
-
-
     /**
      * Registers your function (or an array of object and method) to be called
      * whenever an event is received via an open pnut.io stream. Your function
      * will receive a single parameter, which is the object wrapper containing
      * the meta and data.
-     * @param mixed A PHP callback (either a string containing the function name,
+     * @param mixed $function A PHP callback (either a string containing the function name,
      * or an array where the first element is the class/object and the second
      * is the method).
      */
@@ -2247,7 +2243,6 @@ class phpnut
 
     /**
      * Close the currently open stream.
-     * @return true;
      */
     public function closeStream(): void
     {
@@ -2460,7 +2455,7 @@ class phpnut
      * Process an open stream for x microseconds, then return. This is useful if you want
      * to be doing other things while processing the stream. If you just want to
      * consume the stream without other actions, you can call processForever() instead.
-     * @param float @microseconds The number of microseconds to process for before
+     * @param null|float $microseconds The number of microseconds to process for before
      * returning. There are 1,000,000 microseconds in a second.
      *
      * @return void

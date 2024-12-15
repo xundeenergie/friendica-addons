@@ -54,6 +54,8 @@ unset($id);
  *
  * @package codebird
  * @subpackage codebird-php
+ *
+ * @method object statuses_update(array $postdata)
  */
 class CodebirdSN
 {
@@ -116,7 +118,7 @@ class CodebirdSN
      * Returns singleton class instance
      * Always use this method unless you're working with multiple authenticated users at once
      *
-     * @return Codebird The instance
+     * @return CodebirdSN The instance
      */
     public static function getInstance()
     {
@@ -420,6 +422,7 @@ class CodebirdSN
                 }
                 break;
             case CODEBIRD_RETURNFORMAT_OBJECT:
+                /** @var object $reply */
                 $reply->httpstatus = $httpstatus;
                 if ($httpstatus == 200) {
                     self::setBearerToken($reply->access_token);
@@ -490,7 +493,7 @@ class CodebirdSN
     /**
      * Generates a (hopefully) unique random string
      *
-     * @param int optional $length The length of the string to generate
+     * @param int $length The optional length of the string to generate
      *
      * @return string The random string
      */
@@ -505,9 +508,9 @@ class CodebirdSN
     /**
      * Generates an OAuth signature
      *
-     * @param string          $httpmethod Usually either 'GET' or 'POST' or 'DELETE'
-     * @param string          $method     The API method to call
-     * @param array  optional $params     The API call parameters, associative
+     * @param string $httpmethod Usually either 'GET' or 'POST' or 'DELETE'
+     * @param string $method     The API method to call
+     * @param array  $params     optional The API call parameters, associative
      *
      * @return string Authorization HTTP header
      */
@@ -871,12 +874,12 @@ class CodebirdSN
     /**
      * Calls the API using cURL
      *
-     * @param string          $httpmethod      The HTTP method to use for making the request
-     * @param string          $method          The API method to call
-     * @param string          $method_template The templated API method to call
-     * @param array  optional $params          The parameters to send along
-     * @param bool   optional $multipart       Whether to use multipart/form-data
-     * @param bool   optional $app_only_auth   Whether to use app-only bearer authentication
+     * @param string $httpmethod      The HTTP method to use for making the request
+     * @param string $method          The API method to call
+     * @param string $method_template The templated API method to call
+     * @param array  $params          optional The parameters to send along
+     * @param bool   $multipart       optional Whether to use multipart/form-data
+     * @param bool   $app_only_auth   optional Whether to use app-only bearer authentication
      *
      * @return mixed The API reply, encoded in the set return_format
      */
@@ -959,6 +962,7 @@ class CodebirdSN
         $httpstatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $reply = $this->_parseApiReply($method_template, $reply);
         if ($this->_return_format == CODEBIRD_RETURNFORMAT_OBJECT) {
+            /** @var object $reply */
             $reply->httpstatus = $httpstatus;
         } elseif ($this->_return_format == CODEBIRD_RETURNFORMAT_ARRAY) {
             $reply['httpstatus'] = $httpstatus;
