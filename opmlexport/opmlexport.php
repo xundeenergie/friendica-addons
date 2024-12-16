@@ -8,12 +8,8 @@
  */
 
 use Friendica\DI;
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Network\HTTPException;
-use Friendica\Database\DBA;
-use Friendica\Core\Renderer;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
 use Friendica\Model\User;

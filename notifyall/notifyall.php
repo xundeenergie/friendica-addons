@@ -9,9 +9,7 @@
  */
 
 use Friendica\Addon\notifyall\NotifyAllEmail;
-use Friendica\App;
 use Friendica\Database\DBA;
-use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 

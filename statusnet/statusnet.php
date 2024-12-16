@@ -38,7 +38,6 @@ define('STATUSNET_DEFAULT_POLL_INTERVAL', 5); // given in minutes
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'library' . DIRECTORY_SEPARATOR . 'statusnetoauth.php';
 
 use CodebirdSN\CodebirdSN;
-use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;

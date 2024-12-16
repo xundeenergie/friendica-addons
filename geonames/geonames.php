@@ -6,7 +6,6 @@
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -35,7 +34,7 @@ function geonames_install()
 
 function geonames_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('geonames'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('geonames'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 function geonames_post_hook(array &$item)

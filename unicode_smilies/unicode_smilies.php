@@ -7,7 +7,6 @@
  * Author: Matthias Ebers <https://loma.ml/profile/one>
  */
 
-use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Core\Hook;
 
@@ -691,7 +690,7 @@ function unicode_smilies_smilies(array &$b)
 	Smilies::add($b, ':custard:', '&#x1F36E');
 	Smilies::add($b, ':honey pot:', '&#x1F36F');
 
-// drink  
+// drink
 	Smilies::add($b, ':baby bottle:', '&#x1F37C');
 	Smilies::add($b, ':glass of milk:', '&#x1F95B');
 	Smilies::add($b, ':hot beverage:', '&#x2615');
@@ -1123,7 +1122,7 @@ function unicode_smilies_smilies(array &$b)
 	Smilies::add($b, ':control knobs:', '&#x1F39B');
 	Smilies::add($b, ':microphone:', '&#x1F3A4');
 	Smilies::add($b, ':headphone:', '&#x1F3A7');
-	Smilies::add($b, ':radio:', '&#x1F4FB');    
+	Smilies::add($b, ':radio:', '&#x1F4FB');
 
 // musical-instrument
 	Smilies::add($b, ':saxophone:', '&#x1F3B7');
@@ -1529,7 +1528,7 @@ function unicode_smilies_smilies(array &$b)
 	Smilies::add($b, ':O button (blood type):', '&#x1F17E');
 	Smilies::add($b, ':OK button:', '&#x1F197');
 	Smilies::add($b, ':P button:', '&#x1F17F');
-	Smilies::add($b, ':SOS button:', '&#x1F198');  
+	Smilies::add($b, ':SOS button:', '&#x1F198');
 	Smilies::add($b, ':UP! button:', '&#x1F199');
 	Smilies::add($b, ':VS button:', '&#x1F19A');
 	Smilies::add($b, ':Japanese “here” button:', '&#x1F201');

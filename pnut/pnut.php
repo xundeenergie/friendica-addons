@@ -90,7 +90,7 @@ function pnut_connect()
 
 function pnut_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('pnut'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('pnut'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 function pnut_addon_admin(string &$o)

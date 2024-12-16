@@ -33,7 +33,6 @@
  *
  */
 
-use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Hook;
@@ -42,7 +41,6 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -273,7 +271,7 @@ function advancedcontentfilter_content()
 				'rule_expression'   => DI::l10n()->t('Rule Expression'),
 				'cancel'            => DI::l10n()->t('Cancel'),
 			],
-			'$current_theme' => DI::app()->getCurrentTheme(),
+			'$current_theme' => DI::appHelper()->getCurrentTheme(),
 			'$rules' => DBA::toArray(DBA::select('advancedcontentfilter_rules', [], ['uid' => DI::userSession()->getLocalUserId()])),
 			'$form_security_token' => BaseModule::getFormSecurityToken()
 		]);

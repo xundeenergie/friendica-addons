@@ -6,7 +6,6 @@
  * Author: Klaus Weidenbach <http://friendica.dszdw.net/profile/klaus>
  */
 
-use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -26,7 +25,7 @@ function libravatar_install()
 
 function libravatar_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('libravatar'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('libravatar'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 /**

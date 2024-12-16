@@ -29,7 +29,6 @@
  * The configuration options for this module are described in the config/ldapauth.config.php file
  */
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
@@ -45,7 +44,7 @@ function ldapauth_install()
 
 function ldapauth_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('ldapauth'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('ldapauth'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 function ldapauth_hook_authenticate(array &$b)

@@ -6,15 +6,12 @@
  * Author: Klaus Weidenbach <http://friendica.dszdw.net/profile/klaus>
  */
 
-use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Core\Config\Util\ConfigFileManager;
-use Friendica\Util\Strings;
 
 /**
  * Installs the addon hook
@@ -28,7 +25,7 @@ function gravatar_install() {
 
 function gravatar_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('gravatar'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('gravatar'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 /**

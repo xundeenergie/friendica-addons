@@ -7,7 +7,6 @@
  * License: 3-clause BSD license
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -56,7 +55,7 @@ function impressum_footer(string &$body)
 
 function impressum_load_config(ConfigFileManager $loader)
 {
-	DI::app()->getConfigCache()->load($loader->loadAddonConfig('impressum'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
+	DI::appHelper()->getConfigCache()->load($loader->loadAddonConfig('impressum'), \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC);
 }
 
 function impressum_show(string &$body)

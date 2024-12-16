@@ -8,7 +8,6 @@
  *
  */
 
-use Friendica\App;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
