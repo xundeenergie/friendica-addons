@@ -99,7 +99,7 @@ pipeline:
     commands:
       - codecov -R '.' -Z -f 'clover.xml'
     environment:
-      codecov_token:
+      CODECOV_TOKEN:
         from_secret: codecov-token
 
 services:
