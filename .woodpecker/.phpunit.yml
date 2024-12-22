@@ -98,9 +98,9 @@ pipeline:
         - friendica/friendica-addons
     commands:
       - codecov -R '.' -Z -f 'clover.xml'
-    secrets:
-      - source: codecov-token
-        target: codecov_token
+    environment:
+      codecov_token:
+        from_secret: codecov-token
 
 services:
   mariadb:
