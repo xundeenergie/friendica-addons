@@ -313,7 +313,8 @@ function bluesky_get_status(string $handle = null, string $did = null, string $p
 		return DI::l10n()->t('You are not authenticated. Please enter your handle and the app password.');
 	}
 
-	$status = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'bluesky', 'status') ?? ATProtocol::STATUS_UNKNOWN;
+	$status  = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'bluesky', 'status') ?? ATProtocol::STATUS_UNKNOWN;
+	$message = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'bluesky', 'status-message') ?? '';
 
 	// Fallback mechanism for connection that had been established before the introduction of the status
 	if ($status == ATProtocol::STATUS_UNKNOWN) {
@@ -330,11 +331,11 @@ function bluesky_get_status(string $handle = null, string $did = null, string $p
 
 	switch ($status) {
 		case ATProtocol::STATUS_TOKEN_OK:
-			return DI::l10n()->t("You are authenticated to Bluesky.");
+			return DI::l10n()->t("You are authenticated to Bluesky. For security reasons the password isn't stored.");
 		case ATProtocol::STATUS_SUCCESS:
 			return DI::l10n()->t('The communication with the personal data server service (PDS) is established.');
 		case ATProtocol::STATUS_API_FAIL;
-			return DI::l10n()->t('Communication issues with the personal data server service (PDS).');
+			return DI::l10n()->t('Communication issues with the personal data server service (PDS): %s', $message);
 		case ATProtocol::STATUS_DID_FAIL:
 			return DI::l10n()->t('The DID for the provided handle could not be detected. Please check if you entered the correct handle.');
 		case ATProtocol::STATUS_PDS_FAIL:
@@ -361,7 +362,6 @@ function bluesky_settings_post(array &$b)
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'post',             intval($_POST['bluesky']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'post_by_default',  intval($_POST['bluesky_bydefault']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'handle',           $handle);
-	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'password',         $_POST['bluesky_password']);
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'import',           intval($_POST['bluesky_import']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'import_feeds',     intval($_POST['bluesky_import_feeds']));
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'bluesky', 'complete_threads', intval($_POST['bluesky_complete_threads']));
@@ -852,7 +852,14 @@ function bluesky_add_embed(int $uid, array $msg, array $record): array
 			if (empty($blob)) {
 				return [];
 			}
-			$images[] = ['alt' => $image['description'] ?? '', 'image' => $blob];
+			$images[] = [
+				'alt' => $image['description'] ?? '',
+				'image' => $blob,
+				'aspectRatio' => [
+					'width'  => $photo['width'],
+					'height' => $photo['height'],
+				]
+			];
 		}
 		if (!empty($images)) {
 			$record['embed'] = ['$type' => 'app.bsky.embed.images', 'images' => $images];
@@ -890,10 +897,15 @@ function bluesky_upload_blob(int $uid, array $photo): ?stdClass
 	$picture    = Photo::resizeToFileSize($picture, BLUESKY_IMAGE_SIZE[$retrial]);
 	$new_height = $picture->getHeight();
 	$new_width  = $picture->getWidth();
-	$content    = $picture->asString();
+	$content    = (string)$picture->asString();
 	$new_size   = strlen($content);
 
-	Logger::info('Uploading', ['uid' => $uid, 'retrial' => $retrial, 'height' => $new_height, 'width' => $new_width, 'size' => $new_size, 'orig-height' => $height, 'orig-width' => $width, 'orig-size' => $size]);
+	if (($size != 0) && ($new_size == 0) && ($retrial == 0)) {
+		Logger::warning('Size is empty after resize, uploading original file', ['uid' => $uid, 'retrial' => $retrial, 'height' => $new_height, 'width' => $new_width, 'size' => $new_size, 'orig-height' => $height, 'orig-width' => $width, 'orig-size' => $size]);
+		$content = Photo::getImageForPhoto($photo);
+	} else {
+		Logger::info('Uploading', ['uid' => $uid, 'retrial' => $retrial, 'height' => $new_height, 'width' => $new_width, 'size' => $new_size, 'orig-height' => $height, 'orig-width' => $width, 'orig-size' => $size]);
+	}
 
 	$data = DI::atProtocol()->post($uid, '/xrpc/com.atproto.repo.uploadBlob', $content, ['Content-type' => $photo['type'], 'Authorization' => ['Bearer ' . DI::atProtocol()->getUserToken($uid)]]);
 	if (empty($data) || empty($data->blob)) {
@@ -957,7 +969,7 @@ function bluesky_complete_post(stdClass $post, int $uid, int $post_reason, int $
 	}
 
 	if ($complete) {
-		$uri = DI::atpProcessor()->fetchMissingPost(DI::atpProcessor()->getUri($post), $uid, $post_reason, $causer, 0, '', true);
+		$uri = DI::atpProcessor()->fetchMissingPost(DI::atpProcessor()->getUri($post), $uid, $post_reason, $causer, 0, '', true, $protocol);
 		$uri_id = DI::atpProcessor()->fetchUriId($uri, $uid);
 	} else {
 		$uri_id = DI::atpProcessor()->processPost($post, $uid, $post_reason, $causer, 0, $protocol);
