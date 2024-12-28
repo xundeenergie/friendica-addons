@@ -97,27 +97,25 @@ function bluesky_item_by_link(array &$hookData)
 		return;
 	}
 
-	$token = DI::atProtocol()->getUserToken($hookData['uid']);
-	if (empty($token)) {
-		return;
+	if (substr($hookData['uri'], 0, 5) != 'at://') {
+		if (!preg_match('#^' . ATProtocol::WEB . '/profile/(.+)/post/(.+)#', $hookData['uri'], $matches)) {
+			return;
+		}
+
+		$did = DI::atProtocol()->getDid($matches[1]);
+		if (empty($did)) {
+			return;
+		}
+	
+		Logger::debug('Found bluesky post', ['uri' => $hookData['uri'], 'did' => $did, 'cid' => $matches[2]]);
+	
+		$uri = 'at://' . $did . '/app.bsky.feed.post/' . $matches[2];
+	} else {
+		$uri = $hookData['uri'];
 	}
-
-	// @todo also support the URI format (at://did/app.bsky.feed.post/cid)
-	if (!preg_match('#^' . ATProtocol::WEB . '/profile/(.+)/post/(.+)#', $hookData['uri'], $matches)) {
-		return;
-	}
-
-	$did = DI::atProtocol()->getDid($matches[1]);
-	if (empty($did)) {
-		return;
-	}
-
-	Logger::debug('Found bluesky post', ['url' => $hookData['uri'], 'did' => $did, 'cid' => $matches[2]]);
-
-	$uri = 'at://' . $did . '/app.bsky.feed.post/' . $matches[2];
 
 	$uri = DI::atpProcessor()->fetchMissingPost($uri, $hookData['uid'], Item::PR_FETCHED, 0, 0);
-	Logger::debug('Got post', ['did' => $did, 'cid' => $matches[2], 'result' => $uri]);
+	Logger::debug('Got post', ['uri' => $uri]);
 	if (!empty($uri)) {
 		$item = Post::selectFirst(['id'], ['uri' => $uri, 'uid' => $hookData['uid']]);
 		if (!empty($item['id'])) {
