@@ -2,7 +2,10 @@
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css?v={{constant('\Friendica\App::VERSION')}}" type="text/css" media="screen"/>
 
 <div id="admin-users" class="adminpage generic-page-wrapper">
-	<h1>{{$title}} - {{$page}} ({{$count}})</h1>
+	<h1>
+		{{$title}} - {{$page}} ({{$count}})
+		<a href="{{$base_url}}/ratioed/help"><i style="float: right; font-size: 60%" class="fa fa-question-circle fa-fw" aria-hidden="true"></i></a>
+	</h1>
 	<p>
 		<a href="{{$base_url}}/moderation/users/create" class="btn btn-primary"><i class="fa fa-user-plus"></i> {{$h_newuser}}</a>
 	</p>
