@@ -11,12 +11,7 @@
 		<table id="users" class="table table-hover">
 			<thead>
 				<tr>
-					<th>
-						<div class="checkbox">
-							<input type="checkbox" id="admin-settings-users-select" class="selecttoggle" data-select-class="users_ckbx"/>
-							<label for="admin-settings-users-select"></label>
-						</div>
-					</th>
+					<th></th>
 					<th></th>
 					{{foreach $th_users as $k=>$th}}
 						{{if $k < 2 || $order_users == $th.1 || ($k==4 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.5.1])) }}
@@ -42,16 +37,7 @@
 			<tbody>
 			{{foreach $users as $u}}
 				<tr id="user-{{$u.uid}}" class="{{if $u.ratioed}}blocked{{/if}}">
-					<td>
-						{{if $u.is_deletable}}
-						<div class="checkbox">
-							<input type="checkbox" class="users_ckbx" id="id_user_{{$u.uid}}" name="user[]" value="{{$u.uid}}"/>
-							<label for="id_user_{{$u.uid}}"></label>
-						</div>
-						{{else}}
-						&nbsp;
-						{{/if}}
-					</td>
+					<td></td>
 					<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
 					<td><a href="{{$u.url}}" title="{{$u.nickname}}"> {{$u.name}}</a></td>
 					<td>{{$u.email}}</td>
@@ -151,14 +137,6 @@
 			{{/foreach}}
 			</tbody>
 		</table>
-		<div class="panel-footer">
-			<button type="submit" name="page_users_block" value="1" class="btn btn-warning">
-				<i class="fa fa-ban" aria-hidden="true"></i> {{$block}}
-			</button>
-			<button type="submit" name="page_users_delete" value="1" class="btn btn-danger" onclick="return confirm_delete('{{$confirm_delete_multi}}')">
-				<i class="fa fa-trash" aria-hidden="true"></i> {{$delete}}
-			</button>
-		</div>
 		{{$pager nofilter}}
 	</form>
 </div>
