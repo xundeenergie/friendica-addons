@@ -22,9 +22,9 @@
 					</th>
 					<th></th>
 					{{foreach $th_users as $k=>$th}}
-						{{if $k < 2 || $order_users == $th.1 || ($k==5 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1])) }}
+						{{if $k < 2 || $order_users == $th.1 || ($k==4 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.5.1])) }}
 						<th class="th-{{$k}}">
-							<a href="{{$baseurl}}/moderation/users/active?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}" class="table-order">
+							<a href="{{$baseurl}}/ratioed?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}" class="table-order">
 								{{if $order_users == $th.1}}
 									{{if $order_direction_users == "+"}}
 									&#8595;
@@ -66,11 +66,7 @@
 					<td>{{$u.login_date}}</td>
 				{{/if}}
 
-				{{if $order_users == $th_users.4.1}}
-					<td>{{$u.lastitem_date}}</td>
-				{{/if}}
-
-				{{if !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1]) }}
+				{{if $order_users == $th_users.5.1}}
 					<td>
 						<i class="fa
 							{{if $u.page_flags_raw==0}}fa-user{{/if}}		{{* PAGE_NORMAL *}}
@@ -92,6 +88,10 @@
 						{{if $u.is_admin}}<i class="fa fa-user-secret text-primary" title="{{$siteadmin}}"></i>{{/if}}
 						{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
 					</td>
+				{{/if}}
+
+				{{if !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.5.1]) }}
+					<td>{{$u.lastitem_date}}</td>
 				{{/if}}
 
 					<td class="text-right">
