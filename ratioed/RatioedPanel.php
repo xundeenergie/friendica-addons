@@ -175,8 +175,10 @@ class RatioedPanel extends Active
 						$user['ratioed'] = (float)($user['ratio']) >= 2.0;
 					}
 					else {
+						$user['reactions'] = 0;
 						if ($user['comments'] == 0) {
-							$user['ratio'] = '0';
+							$user['comments'] = 0;
+							$user['ratio'] = 0;
 							$user['ratioed'] = false;
 						}
 						else {
