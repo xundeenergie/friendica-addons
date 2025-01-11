@@ -6,9 +6,6 @@
 		{{$title}} - {{$page}} ({{$count}})
 		<a href="{{$base_url}}/ratioed/help"><i style="float: right; font-size: 60%" class="fa fa-question-circle fa-fw" aria-hidden="true"></i></a>
 	</h1>
-	<p>
-		<a href="{{$base_url}}/moderation/users/create" class="btn btn-primary"><i class="fa fa-user-plus"></i> {{$h_newuser}}</a>
-	</p>
 	<form action="{{$baseurl}}/{{$query_string}}" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		<table id="users" class="table table-hover">
