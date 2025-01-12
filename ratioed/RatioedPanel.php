@@ -24,7 +24,6 @@ class RatioedPanel extends Active
 			return Renderer::replaceMacros($template, array('$config' => DI::baseUrl() . '/settings/addon'));
 		}
 
-		$action = $this->parameters['action'] ?? '';
 		$uid	= $this->parameters['uid']	?? 0;
 		$user   = [];
 
@@ -32,31 +31,10 @@ class RatioedPanel extends Active
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!$user) {
 				$this->systemMessages->addNotice($this->t('User not found'));
-				$this->baseUrl->redirect('moderation/users');
+				$this->baseUrl->redirect('ratioed');
 			}
 		}
 
-		switch ($action) {
-			case 'delete':
-				if ($this->session->getLocalUserId() != $uid) {
-					self::checkFormSecurityTokenRedirectOnError('moderation/users/active', 'moderation_users_active', 't');
-					// delete user
-					User::remove($uid);
-
-					$this->systemMessages->addNotice($this->t('User "%s" deleted', $user['username']));
-				} else {
-					$this->systemMessages->addNotice($this->t('You can\'t remove yourself'));
-				}
-
-				$this->baseUrl->redirect('moderation/users/active');
-				break;
-			case 'block':
-				self::checkFormSecurityTokenRedirectOnError('moderation/users/active', 'moderation_users_active', 't');
-				User::block($uid);
-				$this->systemMessages->addNotice($this->t('User "%s" blocked', $user['username']));
-				$this->baseUrl->redirect('moderation/users/active');
-				break;
-		}
 		$pager = new Pager($this->l10n, $this->args->getQueryString(), 100);
 
 		$valid_orders = [
@@ -69,9 +47,9 @@ class RatioedPanel extends Active
 		];
 
 		$order		   = 'last-item';
-		$order_direction = '-';
-		if (!empty($request['o'])) {
-			$new_order = $request['o'];
+		$order_direction = '+';
+		if (!empty($_REQUEST['o'])) {
+			$new_order = $_REQUEST['o'];
 			if ($new_order[0] === '-') {
 				$order_direction = '-';
 				$new_order	   = substr($new_order, 1);
@@ -175,8 +153,10 @@ class RatioedPanel extends Active
 						$user['ratioed'] = (float)($user['ratio']) >= 2.0;
 					}
 					else {
+						$user['reactions'] = 0;
 						if ($user['comments'] == 0) {
-							$user['ratio'] = '0';
+							$user['comments'] = 0;
+							$user['ratio'] = 0;
 							$user['ratioed'] = false;
 						}
 						else {
